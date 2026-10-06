@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Messagerie SOLÉA – exercice CADGA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bleu:#247091; --vert:#45967C; --violet:#484596;
+  --fond:#eef2f4; --surface:#ffffff; --surface2:#f6f8f9; --texte:#1d2a30; --doux:#5b6b72;
+  --ligne:#d8e0e4; --nonlu:#eaf3f7; --danger:#b03a2e; --ombre:0 2px 8px rgba(36,112,145,.12);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --fond:#121a1e; --surface:#1b262b; --surface2:#162025; --texte:#e4ecef; --doux:#9fb0b7;
+  --ligne:#2c3b42; --nonlu:#1f3440; --danger:#e07a6f; --ombre:0 2px 8px rgba(0,0,0,.4); --bleu:#4b9fc2; --violet:#8c89d8;
+}}
+:root[data-theme="dark"]{
+  --fond:#121a1e; --surface:#1b262b; --surface2:#162025; --texte:#e4ecef; --doux:#9fb0b7;
+  --ligne:#2c3b42; --nonlu:#1f3440; --danger:#e07a6f; --ombre:0 2px 8px rgba(0,0,0,.4); --bleu:#4b9fc2; --violet:#8c89d8;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--fond);color:var(--texte);font-family:Figtree,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+.app{display:flex;flex-direction:column;height:100%;max-width:1400px;margin:0 auto;padding:10px;gap:10px}
+.bandeau{background:#45967C;color:#fff;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:var(--ombre)}
+.bandeau h1{font-size:1.15rem;margin:0;font-weight:700}
+.bandeau .adr{opacity:.9;font-size:.88rem}
+.bandeau .esp{flex:1}
+.puce{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:5px 12px;font-size:.85rem}
+button.puce:hover{background:rgba(255,255,255,.3)}
+.statut{font-size:.8rem;padding:3px 10px;border-radius:999px;background:#fff;color:#2d6b57;font-weight:600}
+.statut.demo{color:#8a4b00}
+.corps{flex:1;min-height:0;display:grid;grid-template-columns:210px minmax(260px,360px) 1fr;gap:10px}
+.panneau{background:var(--surface);border-radius:12px;border-left:4px solid var(--bleu);box-shadow:var(--ombre);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.dossiers{padding:10px;overflow:auto}
+.nouveau{width:100%;background:var(--violet);color:#fff;border:0;border-radius:10px;padding:10px;font-weight:600;margin-bottom:10px}
+.dossiers h2{font-size:.8rem;color:var(--doux);margin:12px 6px 4px;font-weight:600}
+.dossier{display:flex;width:100%;align-items:center;gap:8px;border:0;background:none;padding:7px 10px;border-radius:8px;text-align:left}
+.dossier:hover{background:var(--surface2)}
+.dossier.actif{background:var(--nonlu);color:var(--bleu);font-weight:600}
+.dossier .nb{margin-left:auto;font-size:.78rem;background:var(--bleu);color:#fff;border-radius:999px;padding:0 7px;font-weight:600}
+.dossier .nb.gris{background:none;color:var(--doux)}
+.liste-tete{padding:10px 12px;border-bottom:1px solid var(--ligne);display:flex;gap:8px;align-items:center}
+.liste-tete h2{margin:0;font-size:1rem;flex:1}
+.recherche{width:100%;border:1px solid var(--ligne);background:var(--surface2);border-radius:8px;padding:7px 10px}
+.liste{overflow:auto;flex:1}
+.mail{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--ligne);background:none;padding:10px 12px;position:relative}
+.mail:hover{background:var(--surface2)}
+.mail.nonlu{background:var(--nonlu)}
+.mail.nonlu .exp,.mail.nonlu .obj{font-weight:700}
+.mail.sel{box-shadow:inset 4px 0 0 var(--violet)}
+.mail .l1{display:flex;gap:8px;align-items:baseline}
+.mail .exp{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mail .dt{font-size:.78rem;color:var(--doux);white-space:nowrap}
+.mail .obj{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.92rem}
+.mail .ext{font-size:.83rem;color:var(--doux);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drapeau{color:var(--danger);font-weight:700}
+.vide{padding:30px 16px;color:var(--doux);text-align:center}
+.lecteur{overflow:auto;padding:16px 20px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;align-items:center}
+.btn{border:1px solid var(--ligne);background:var(--surface2);border-radius:8px;padding:6px 11px;font-size:.88rem}
+.btn:hover{border-color:var(--bleu)}
+.btn.prim{background:var(--bleu);border-color:var(--bleu);color:#fff}
+.btn.on{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.danger{color:var(--danger)}
+select.btn{padding:6px 8px}
+.lecteur h2{margin:0 0 10px;font-size:1.25rem;line-height:1.3}
+.meta{font-size:.88rem;color:var(--doux);border-bottom:1px solid var(--ligne);padding-bottom:10px;margin-bottom:14px}
+.meta b{color:var(--texte);font-weight:600}
+.texte{white-space:pre-wrap;word-wrap:break-word;max-width:72ch}
+.pjs{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pj{border:1px dashed var(--bleu);border-radius:8px;padding:6px 10px;font-size:.85rem;color:var(--bleu)}
+.trace{margin-top:20px;font-size:.82rem;color:var(--doux);border-top:1px solid var(--ligne);padding-top:8px}
+.retour{display:none}
+.journal{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 70px);width:min(360px,calc(100vw - 20px));max-height:70vh;overflow:auto;background:var(--surface);border-radius:12px;border-left:4px solid var(--violet);box-shadow:0 8px 30px rgba(0,0,0,.25);padding:12px 14px;z-index:20}
+.journal h2{margin:0 0 8px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.journal h2 span{flex:1}
+.jl{font-size:.86rem;padding:6px 0;border-bottom:1px solid var(--ligne)}
+.jl .q{color:var(--doux);font-size:.78rem}
+.voile{position:fixed;inset:0;background:rgba(10,20,25,.45);display:flex;align-items:center;justify-content:center;z-index:30;padding:12px}
+.fenetre{background:var(--surface);border-radius:12px;border-left:4px solid var(--bleu);width:min(680px,100%);max-height:100%;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.fenetre .tete{background:#45967C;color:#fff;padding:10px 14px;font-weight:700;border-radius:8px 8px 0 0}
+.fenetre .cont{padding:14px;display:flex;flex-direction:column;gap:8px}
+.fenetre label{font-size:.8rem;color:var(--doux);font-weight:600}
+.fenetre input,.fenetre textarea{width:100%;border:1px solid var(--ligne);background:var(--surface2);border-radius:8px;padding:8px 10px}
+.fenetre textarea{min-height:240px;resize:vertical}
+.fenetre .pied{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:0 14px 14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);background:var(--violet);color:#fff;padding:9px 16px;border-radius:999px;z-index:40;font-size:.9rem}
+footer{font-size:.75rem;color:var(--doux);text-align:center;padding:2px 0}
+.avert{background:var(--surface);border-left:4px solid var(--danger);border-radius:10px;padding:10px 14px;font-size:.88rem}
+@media (max-width:900px){
+  .corps{grid-template-columns:1fr}
+  .corps>.panneau{display:none}
+  .corps[data-vue="dossiers"]>.p-dossiers,.corps[data-vue="liste"]>.p-liste,.corps[data-vue="lecteur"]>.p-lecteur{display:flex}
+  .retour{display:inline-block}
+  .bandeau .adr{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.ligne-mail{display:flex;align-items:stretch;border-bottom:1px solid var(--ligne)}
+.ligne-mail.nonlu{background:var(--nonlu)}
+.ligne-mail .mail{border-bottom:0;background:none;flex:1;min-width:0;padding-left:4px}
+.case{display:flex;align-items:center;padding:0 4px 0 12px}
+.case input{width:18px;height:18px;accent-color:var(--violet)}
+.barre{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--ligne);background:var(--surface2);font-size:.88rem}
+.dossier.sous{padding-left:24px}.dossier.sous2{padding-left:38px}
+.ajout{width:100%;border:1px dashed var(--bleu);background:none;color:var(--bleu);border-radius:8px;padding:6px 10px;margin-top:4px;text-align:left}
+.outils-dossier{display:flex;gap:6px;flex-wrap:wrap;padding:8px 12px;border-bottom:1px solid var(--ligne)}
+.alerte-spam{background:#fdecea;color:#7a2018;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.88rem}
+.lien{color:var(--bleu);text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bandeau">
+    <div><h1>SOLÉA Services – Messagerie</h1><div class="adr">accueil@solea-services.gp · entreprise fictive</div></div>
+    <span class="statut">Ta boîte personnelle</span>
+    <span class="esp"></span>
+    <button class="puce" id="bJournal">Mon historique</button>
+  </header>
+  <main class="corps" id="corps" data-vue="liste">
+    <section class="panneau p-dossiers"><div class="dossiers" id="dossiers"></div></section>
+    <section class="panneau p-liste">
+      <div class="liste-tete"><button class="btn retour" id="rDossiers">Dossiers</button><h2 id="titreListe"></h2></div>
+      <div id="outilsDossier"></div>
+      <div style="padding:8px 12px;border-bottom:1px solid var(--ligne)"><input class="recherche" id="recherche" placeholder="Rechercher (expéditeur, objet, texte)" aria-label="Rechercher"></div>
+      <div id="barre"></div>
+      <div class="liste" id="liste"></div>
+    </section>
+    <section class="panneau p-lecteur"><div class="lecteur" id="lecteur"></div></section>
+  </main>
+  <footer>Support de formation - Chrystelle THEOPHILE - MAJ 10-2026 - Boîte mail SOLÉA (CADGA)<br>Ton travail reste enregistré sur cet appareil et dans ce navigateur.</footer>
+</div>
+<div id="calque"></div>
+<script>
+const SEED = [{"id": "r01", "dossier": "reception", "type": "recu", "de": {"nom": "Laurence Bélair", "email": "l.belair@orange.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Chauffe-eau toujours en panne !!!", "date": "2026-10-05T07:12:00-04:00", "lu": false, "prioritaire": false, "pj": ["photo_ballon.jpg"], "corps": "Bonjour,\n\nCela fait maintenant 10 jours que mon chauffe-eau solaire ne chauffe plus du tout. J'ai appelé le 25 septembre puis le 29 septembre. La deuxième fois, la personne au téléphone m'a assuré qu'un technicien passerait le jeudi 1er octobre dans la matinée. J'ai posé ma matinée de travail pour rien : personne n'est venu et personne ne m'a prévenue.\n\nJ'ai deux enfants en bas âge et nous nous lavons à l'eau froide depuis plus d'une semaine. Je vous rappelle que je paie chaque année un contrat d'entretien (180 € par an) qui prévoit une intervention sous 72 heures en cas de panne.\n\nJe veux être rappelée AUJOURD'HUI au 0690 12 34 56 avec une date d'intervention ferme. Sans réponse de votre part, je résilierai mon contrat et je laisserai un avis détaillé sur internet.\n\nJe vous joins une photo du ballon : il y a de l'eau qui coule sous le raccord.\n\nLaurence Bélair\nContrat d'entretien n° CE-2219\nLotissement Les Hibiscus, lot 14 – 97170 Petit-Bourg"}, {"id": "r02", "dossier": "reception", "type": "recu", "de": {"nom": "Jean-Marc Ozier", "email": "jm.ozier@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Demande de devis climatisation", "date": "2026-09-30T18:40:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonsoir,\n\nNous venons d'acheter une maison au Gosier (section Mathurin) et nous souhaiterions faire installer la climatisation dans les 3 chambres, qui font environ 12 m² chacune. La maison est sur un seul niveau, avec une toiture en tôle.\n\nNous voudrions savoir :\n- si vous proposez des modèles basse consommation (inverter) ;\n- s'il est possible d'avoir une seule unité extérieure pour les trois chambres ;\n- quels sont vos délais d'installation ;\n- si vous proposez un contrat d'entretien.\n\nNous sommes disponibles en semaine après 16h pour une visite, ou le samedi matin.\n\nDans l'attente de votre retour,\nCordialement,\n\nJean-Marc Ozier\n0690 98 76 54"}, {"id": "r03", "dossier": "reception", "type": "recu", "de": {"nom": "Jean-Marc Ozier", "email": "jm.ozier@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "RE: Demande de devis climatisation", "date": "2026-10-05T08:03:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe me permets de vous relancer : je n'ai reçu aucune réponse à ma demande de devis du 30 septembre (voir ci-dessous).\n\nJ'ai déjà reçu deux devis d'autres entreprises. Si je n'ai pas de nouvelles de votre part d'ici mercredi, je considérerai que vous n'êtes pas intéressés.\n\nCordialement,\nJean-Marc Ozier\n\n----- Message d'origine -----\nDe : Jean-Marc Ozier\nDate : 30 septembre 2026 18:40\nObjet : Demande de devis climatisation\n\nNous venons d'acheter une maison au Gosier et nous souhaiterions faire installer la climatisation dans les 3 chambres…"}, {"id": "r04", "dossier": "reception", "type": "recu", "de": {"nom": "Caraïbes Thermique Distribution", "email": "commandes@ctd-antilles.fictif"}, "a": ["accueil@solea-services.gp"], "cc": ["d.saintrose@solea-services.gp"], "objet": "Votre commande CMD-8841 – report de livraison", "date": "2026-10-01T09:05:00-04:00", "lu": false, "prioritaire": false, "pj": ["BL_CMD-8841.pdf"], "corps": "Madame, Monsieur,\n\nNous accusons bonne réception de votre commande CMD-8841 du 15 septembre 2026, qui comprend :\n- 4 ballons solaires 300 L, réf. BS-300-INOX ;\n- 2 kits de raccordement, réf. KR-22 ;\n- 1 vase d'expansion 25 L.\n\nEn raison d'un retard du transport maritime au départ de l'Europe, la livraison initialement prévue le 6 octobre 2026 est reportée au 20 octobre 2026.\n\nNous vous prions de bien vouloir nous confirmer par retour de mail que ce nouveau délai vous convient, ou de nous indiquer si vous souhaitez annuler tout ou partie de la commande. Sans réponse de votre part avant le 9 octobre, la commande sera maintenue.\n\nNous vous prions de nous excuser pour ce désagrément.\n\nVeuillez agréer, Madame, Monsieur, nos salutations distinguées.\n\nService commandes\nCaraïbes Thermique Distribution\nZone de Moudong Sud – 97122 Baie-Mahault"}, {"id": "r05", "dossier": "reception", "type": "recu", "de": {"nom": "Sabine Numa", "email": "s.numa@cabinet-numa.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Pièces manquantes – clôture de septembre", "date": "2026-10-02T11:20:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nPour finaliser la comptabilité du mois de septembre, il nous manque les pièces suivantes :\n- la facture Caraïbes Thermique Distribution du 12/09 (montant : 3 480,00 €) ;\n- la facture Garage Lamentin Auto du 18/09 (réparation du véhicule de M. Démocrite) ;\n- le relevé bancaire de septembre du compte professionnel ;\n- les notes de frais de carburant des techniciens.\n\nPar ailleurs, nous avons relevé deux encaissements clients que nous ne parvenons pas à rattacher à une facture : 450 € le 08/09 et 1 200 € le 22/09. Pourriez-vous nous indiquer à quels clients ils correspondent ?\n\nMerci de nous transmettre l'ensemble au plus tard le vendredi 9 octobre, afin que nous puissions préparer la déclaration de TVA.\n\nBien cordialement,\n\nSabine Numa\nCollaboratrice comptable\nCabinet Numa & Associés – Expertise comptable"}, {"id": "r06", "dossier": "reception", "type": "recu", "de": {"nom": "Didier Sainte-Rose", "email": "d.saintrose@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": ["s.democrite@solea-services.gp"], "objet": "Réunion d'équipe jeudi 8 octobre", "date": "2026-10-02T16:45:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe souhaite organiser une réunion d'équipe le jeudi 8 octobre de 8h30 à 10h.\n\nPeux-tu s'il te plaît :\n- réserver la salle de réunion (et vérifier que le vidéoprojecteur fonctionne) ;\n- envoyer une invitation à toute l'équipe : Steeve, Rudy, Nadia et toi ;\n- me préparer un ordre du jour avec les points suivants : planning des interventions d'octobre, réclamations en cours, retard de livraison CTD, organisation des congés de fin d'année, questions diverses ;\n- prévoir le café.\n\nMerci de m'envoyer l'ordre du jour pour validation avant mercredi midi.\n\n\nDidier Sainte-Rose\nGérant – SOLÉA Services\n0590 00 11 22"}, {"id": "r07", "dossier": "reception", "type": "recu", "de": {"nom": "Kévin Lacroix", "email": "kevin.lacroix97@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Candidature spontanée – technicien frigoriste", "date": "2026-10-03T10:02:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Madame, Monsieur,\n\nTitulaire d'un CAP Froid et climatisation et de l'attestation de capacité à manipuler les fluides frigorigènes (catégorie 1), je me permets de vous adresser ma candidature spontanée pour un poste de technicien d'installation et de maintenance.\n\nAprès deux ans d'expérience dans une entreprise de climatisation à Pointe-à-Pitre, je souhaite rejoindre une structure spécialisée dans les énergies renouvelables. Je suis titulaire du permis B et je suis disponible immédiatement.\n\nVous trouverez ci-joint mon CV et ma lettre de motivation.\n\nJe reste à votre disposition pour un entretien et vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.\n\nKévin Lacroix\n0691 45 67 89"}, {"id": "r08", "dossier": "reception", "type": "recu", "de": {"nom": "Fabienne Gaspard", "email": "fab.gaspard@wanadoo.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "duplicata facture", "date": "2026-10-03T14:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "bonjour\n\njai besoin de la facture pour mon chauffe eau qui a ete installé en juin pour mon dossier daide de la region, je ne la retrouve plus. il me la faut avant la fin du mois sinon le dossier sera refusé. pouvez vous me la renvoyer svp par mail ou par la poste\n\nmerci\nF. Gaspard\nMorne-à-l'Eau"}, {"id": "r09", "dossier": "reception", "type": "recu", "de": {"nom": "Steeve Démocrite", "email": "s.democrite@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Planning semaine prochaine", "date": "2026-10-04T19:55:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Salut,\n\nMa camionnette est au garage jusqu'à mercredi (problème d'embrayage). Je ne pourrai donc pas assurer les interventions de lundi et mardi :\n- lundi 8h : M. Hubert Lancelot, Sainte-Anne (entretien clim) ;\n- lundi 14h : Mme Laurence Bélair, Petit-Bourg (panne chauffe-eau) ;\n- mardi 9h : Résidence Les Palmiers, Abymes (3 appartements).\n\nIl faudrait prévenir les clients et décaler, ou voir avec Rudy s'il peut en reprendre une partie. Attention, pour Mme Bélair c'est urgent, elle a déjà appelé deux fois.\n\nMerci\nSteeve\nTechnicien"}, {"id": "r10", "dossier": "reception", "type": "recu", "de": {"nom": "Mélissa Tardieu", "email": "melissa.tardieu@laposte.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Inscription permis B", "date": "2026-10-04T12:10:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe voudrais m'inscrire pour passer le permis B et connaître vos tarifs pour la formule 20 heures de conduite. Est-ce que vous faites aussi la conduite accompagnée ?\n\nJe suis disponible le mercredi après-midi et le samedi.\n\nMerci d'avance,\nMélissa Tardieu"}, {"id": "r11", "dossier": "reception", "type": "recu", "de": {"nom": "Service Sécurité – Banque Caraïbe", "email": "securite@banque-caraibe-verif.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "URGENT : votre compte professionnel sera suspendu sous 24h", "date": "2026-10-04T03:17:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Cher client,\n\nNous avons détecté une activité inhabituelle sur votre compte professionnel. Pour votre sécurité, l'accès à votre espace en ligne a été temporairement limité.\n\nSans vérification de vos informations sous 24 heures, votre compte sera définitivement suspendu et vos cartes bloquées.\n\nCliquez ici pour vérifier vos identifiants : http://banque-caraibe-verif.fictif/connexion-securisee\n\nMunissez-vous de votre identifiant, de votre mot de passe et de votre carte bancaire.\n\nLe Service Sécurité"}, {"id": "r12", "dossier": "reception", "type": "recu", "de": {"nom": "Didier Sainte-Rose", "email": "d.saintrose@solea-services.gp"}, "a": ["accueil@solea-services.gp", "s.democrite@solea-services.gp", "r.alexis@solea-services.gp", "n.berthelot@solea-services.gp"], "cc": [], "objet": "Note de service – traitement des réclamations", "date": "2026-09-28T08:00:00-04:00", "lu": true, "prioritaire": false, "pj": ["registre_reclamations.xlsx"], "corps": "Bonjour à tous,\n\nSuite à plusieurs avis négatifs laissés en ligne ce mois-ci, je mets en place une procédure de traitement des réclamations, applicable à compter du 1er octobre 2026.\n\nToute réclamation client, qu'elle arrive par téléphone, par mail ou par courrier, doit :\n1. être enregistrée dans le registre des réclamations dans les 24 heures (date, client, objet, canal) ;\n2. faire l'objet d'un accusé de réception au client le jour même, avec un ton courtois, même si le client est agressif ;\n3. être transmise au technicien responsable du secteur, avec copie à moi-même ;\n4. être clôturée dans le registre une fois le problème résolu.\n\nLe registre est joint à ce message. Merci de respecter cette procédure.\n\n\nDidier Sainte-Rose\nGérant – SOLÉA Services\n0590 00 11 22"}, {"id": "r13", "dossier": "reception", "type": "recu", "de": {"nom": "Salon de l'Habitat Guadeloupe", "email": "info@salonhabitat-gp.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Salon de l'Habitat 2026 – appel à exposants", "date": "2026-09-29T09:00:00-04:00", "lu": true, "prioritaire": false, "pj": ["dossier_exposant_2026.pdf"], "corps": "Madame, Monsieur,\n\nLa 12e édition du Salon de l'Habitat se tiendra du 27 au 29 novembre 2026 au Palais des sports du Gosier. Plus de 15 000 visiteurs sont attendus.\n\nLes inscriptions des exposants sont ouvertes jusqu'au 31 octobre 2026. Les stands sont proposés en 9 m², 18 m² et 27 m².\n\nVous trouverez en pièce jointe le dossier d'inscription et la grille tarifaire. Une remise de 10 % est accordée aux exposants de l'édition précédente.\n\nAu plaisir de vous compter parmi nous,\n\nL'équipe organisatrice"}, {"id": "r14", "dossier": "reception", "type": "recu", "de": {"nom": "Résidence Les Palmiers – Syndic", "email": "gestion@syndic-palmiers.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Accès aux appartements pour l'entretien", "date": "2026-09-24T10:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nComme convenu, votre technicien pourra intervenir le mardi 6 octobre à partir de 9h pour l'entretien des chauffe-eau solaires des appartements 3, 7 et 12.\n\nLe gardien, M. Joseph, remettra les clés à votre technicien sur présentation d'un justificatif. Merci de nous indiquer à l'avance le nom du technicien et l'immatriculation du véhicule pour l'accès au parking.\n\nMerci également de nous envoyer la facture au nom du syndicat des copropriétaires, et non au nom des occupants.\n\nBien cordialement,\nService gestion\nCabinet de syndic – Résidence Les Palmiers"}, {"id": "r15", "dossier": "reception", "type": "recu", "de": {"nom": "Assurances Karukéra", "email": "contrats@assur-karukera.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Échéance de votre contrat multirisque professionnelle", "date": "2026-09-15T08:45:00-04:00", "lu": true, "prioritaire": false, "pj": ["conditions_particulieres_MRP-55102.pdf"], "corps": "Madame, Monsieur,\n\nVotre contrat multirisque professionnelle n° MRP-55102 arrive à échéance le 31 décembre 2026.\n\nAfin de mettre à jour votre dossier, merci de nous transmettre avant le 15 novembre :\n- votre chiffre d'affaires 2025 ;\n- l'effectif actuel de l'entreprise ;\n- la liste des véhicules professionnels.\n\nVotre avis d'échéance vous sera adressé début décembre.\n\nVotre conseillère reste à votre disposition au 0590 22 33 44.\n\nAssurances Karukéra – Service contrats"}, {"id": "r16", "dossier": "reception", "type": "recu", "de": {"nom": "Nadia Berthelot", "email": "n.berthelot@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Congés de fin d'année", "date": "2026-09-21T14:10:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nDidier m'a demandé de centraliser les demandes de congés pour la période du 21 décembre au 3 janvier.\n\nPeux-tu me dire avant le 10 octobre quelles dates tu souhaites poser ? Il faut qu'au moins une personne soit présente à l'accueil chaque jour ouvré.\n\nMerci !\nNadia\nAssistante commerciale"}, {"id": "r17", "dossier": "reception", "type": "recu", "de": {"nom": "Hubert Lancelot", "email": "h.lancelot@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "RE: Confirmation de votre rendez-vous", "date": "2026-10-01T19:22:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonsoir,\n\nMerci pour la confirmation. Je serai bien présent mercredi 7 octobre.\n\nPetite précision : le portail sera ouvert, mais attention au chien, il faudra sonner avant d'entrer. Pouvez-vous également demander au technicien de jeter un œil à l'unité extérieure qui fait un bruit inhabituel depuis quelques jours ?\n\nBien à vous,\nHubert Lancelot"}, {"id": "r18", "dossier": "reception", "type": "recu", "de": {"nom": "Mairie de Baie-Mahault – Développement économique", "email": "eco@mairie-bm.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Invitation – Rencontre des entreprises de Jarry", "date": "2026-09-10T09:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Madame, Monsieur,\n\nLe service Développement économique a le plaisir de vous inviter à la Rencontre des entreprises de Jarry, le jeudi 22 octobre 2026 de 17h30 à 20h, salle des fêtes de Baie-Mahault.\n\nAu programme : présentation des aides à l'embauche, échanges avec les financeurs et cocktail de réseautage.\n\nInscription obligatoire avant le 15 octobre, en répondant à ce mail (nom, fonction, nombre de participants).\n\nLe service Développement économique"}, {"id": "r19", "dossier": "reception", "type": "recu", "de": {"nom": "Rudy Alexis", "email": "r.alexis@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Commande de pièces", "date": "2026-08-27T12:05:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Salut,\n\nIl me faudrait pour les interventions de septembre :\n- 10 joints de raccord 3/4 ;\n- 2 anodes magnésium ;\n- 1 thermostat de rechange modèle TH-60.\n\nTu peux passer la commande chez CTD ? Demande-leur aussi le nouveau catalogue, le nôtre date de l'année dernière.\n\nMerci\nRudy"}, {"id": "r20", "dossier": "reception", "type": "recu", "de": {"nom": "Christelle Moreau", "email": "c.moreau@hotmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Rappel demandé – entretien climatisation", "date": "2026-10-02T15:10:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJ'ai essayé de vous joindre plusieurs fois par téléphone ce matin, sans succès.\n\nJe souhaiterais faire entretenir les deux climatiseurs de mon appartement à Pointe-à-Pitre (immeuble Les Alizés, 4e étage, sans ascenseur). Pouvez-vous me rappeler au 0690 55 44 33, de préférence entre 12h et 14h ?\n\nMerci,\nChristelle Moreau"}, {"id": "r21", "dossier": "reception", "type": "recu", "de": {"nom": "Service des impôts des entreprises", "email": "sie.notifications@impots-gouv.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Accusé de réception de votre déclaration de TVA", "date": "2026-08-20T06:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Madame, Monsieur,\n\nNous accusons réception de votre déclaration de TVA de juillet 2026, déposée le 19 août 2026.\n\nCe message est envoyé automatiquement. Merci de ne pas y répondre."}, {"id": "r22", "dossier": "reception", "type": "recu", "de": {"nom": "Didier Sainte-Rose", "email": "d.saintrose@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Nouveaux tarifs à compter du 1er mars", "date": "2026-02-16T09:30:00-04:00", "lu": true, "prioritaire": false, "pj": ["grille_tarifaire_2026.pdf"], "corps": "Bonjour,\n\nÀ compter du 1er mars 2026, nos tarifs évoluent :\n- contrat d'entretien chauffe-eau solaire : 180 € par an (au lieu de 165 €) ;\n- contrat d'entretien climatisation (1 unité) : 120 € par an ;\n- déplacement hors contrat : 55 €.\n\nMerci de mettre à jour les modèles de devis et d'en informer les clients qui appellent pour un renouvellement.\n\n\nDidier Sainte-Rose\nGérant – SOLÉA Services\n0590 00 11 22"}, {"id": "r23", "dossier": "reception", "type": "recu", "de": {"nom": "Marie-José Clairville", "email": "mj.clairville@orange.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Merci !", "date": "2026-06-12T17:45:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe voulais simplement remercier votre technicien, Rudy, pour son intervention de ce matin. Il a été ponctuel, très poli et il a pris le temps de m'expliquer le fonctionnement de mon nouveau chauffe-eau.\n\nJe n'hésiterai pas à vous recommander autour de moi.\n\nBonne journée,\nMarie-José Clairville\nCapesterre-Belle-Eau"}, {"id": "r24", "dossier": "reception", "type": "recu", "de": {"nom": "Caraïbes Thermique Distribution", "email": "compta@ctd-antilles.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Relance – facture FA-2026-0733 impayée", "date": "2026-09-18T10:00:00-04:00", "lu": true, "prioritaire": false, "pj": ["FA-2026-0733.pdf"], "corps": "Madame, Monsieur,\n\nSauf erreur ou omission de notre part, la facture FA-2026-0733 du 20 juillet 2026, d'un montant de 1 256,40 € TTC, arrivée à échéance le 19 août 2026, reste impayée à ce jour.\n\nNous vous remercions de bien vouloir procéder à son règlement dans les meilleurs délais. Si votre paiement a été effectué entre-temps, merci de ne pas tenir compte de ce courrier.\n\nService comptabilité\nCaraïbes Thermique Distribution"}, {"id": "r25", "dossier": "reception", "type": "recu", "de": {"nom": "Organisme de formation Énergie Caraïbes", "email": "contact@formation-energie.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Votre inscription – Habilitation électrique", "date": "2026-04-03T11:00:00-04:00", "lu": true, "prioritaire": false, "pj": ["convocation_R_Alexis.pdf", "convention_formation.pdf"], "corps": "Bonjour,\n\nNous confirmons l'inscription de M. Rudy Alexis à la formation « Habilitation électrique BR – recyclage », les 18 et 19 mai 2026, de 8h à 16h, dans nos locaux des Abymes.\n\nLa convocation et le programme sont joints à ce message. Merci de nous retourner la convention signée avant le 30 avril.\n\nLe service formation"}, {"id": "r30", "dossier": "reception", "type": "recu", "de": {"nom": "Assurances Karukéra", "email": "contrats@assur-karukera.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Attestation d'assurance décennale 2025", "date": "2025-01-14T08:30:00-04:00", "lu": true, "prioritaire": false, "pj": ["attestation_decennale_2025.pdf"], "corps": "Madame, Monsieur,\n\nVeuillez trouver ci-joint votre attestation d'assurance responsabilité civile décennale, valable du 1er janvier au 31 décembre 2025.\n\nNous vous rappelons que cette attestation doit être jointe à chacun de vos devis et factures de travaux.\n\nAssurances Karukéra – Service contrats"}, {"id": "r31", "dossier": "reception", "type": "recu", "de": {"nom": "Didier Sainte-Rose", "email": "d.saintrose@solea-services.gp"}, "a": ["accueil@solea-services.gp", "s.democrite@solea-services.gp", "r.alexis@solea-services.gp", "n.berthelot@solea-services.gp"], "cc": [], "objet": "Bonne année 2025 !", "date": "2025-01-02T08:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour à toutes et à tous,\n\nJe vous souhaite une très belle année 2025, pleine de santé et de réussite.\n\n2024 a été une année record pour SOLÉA, avec plus de 300 interventions. Merci à chacun pour son engagement. Rendez-vous vendredi midi pour partager la galette !\n\n\nDidier Sainte-Rose\nGérant – SOLÉA Services\n0590 00 11 22"}, {"id": "r32", "dossier": "reception", "type": "recu", "de": {"nom": "Laurence Bélair", "email": "l.belair@orange.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Souscription contrat d'entretien", "date": "2025-03-20T13:15:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nSuite à l'installation de mon chauffe-eau solaire par vos soins le mois dernier, je souhaite souscrire au contrat d'entretien annuel.\n\nPouvez-vous m'envoyer le contrat à signer et m'indiquer les modalités de paiement ?\n\nMerci,\nLaurence Bélair\nPetit-Bourg"}, {"id": "r33", "dossier": "reception", "type": "recu", "de": {"nom": "Cabinet Numa & Associés", "email": "s.numa@cabinet-numa.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Bilan 2024 – rendez-vous de présentation", "date": "2025-04-08T15:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nLe bilan de l'exercice 2024 est finalisé. Nous vous proposons un rendez-vous de présentation avec M. Sainte-Rose le mardi 22 avril à 10h ou le jeudi 24 avril à 14h, à notre cabinet.\n\nMerci de nous indiquer le créneau qui vous convient.\n\nBien cordialement,\nSabine Numa"}, {"id": "r34", "dossier": "reception", "type": "recu", "de": {"nom": "Steeve Démocrite", "email": "s.democrite@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Arrêt maladie", "date": "2025-07-07T06:45:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe ne pourrai pas venir aujourd'hui ni demain, mon médecin m'a mis en arrêt. J'envoie l'arrêt de travail par courrier.\n\nIl faudra décaler mes rendez-vous de lundi et mardi. Le planning est dans le classeur bleu.\n\nDésolé,\nSteeve"}, {"id": "r35", "dossier": "reception", "type": "recu", "de": {"nom": "Jean Ramassamy", "email": "j.ramassamy@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Devis accepté – chauffe-eau 200 L", "date": "2025-11-05T20:10:00-04:00", "lu": true, "prioritaire": false, "pj": ["devis_D-2025-0198_signe.pdf"], "corps": "Bonsoir,\n\nJe vous retourne le devis n° D-2025-0198 signé, avec la mention « bon pour accord ». Je vous ferai le virement de l'acompte de 30 % demain.\n\nPouvez-vous m'indiquer une date d'installation ? Je préférerais avant Noël.\n\nCordialement,\nJean Ramassamy\nSainte-Rose"}, {"id": "r40", "dossier": "reception", "type": "recu", "de": {"nom": "Didier Sainte-Rose", "email": "d.saintrose@solea-services.gp"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Bienvenue !", "date": "2024-09-02T07:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour et bienvenue dans l'équipe SOLÉA !\n\nVoici quelques informations pour bien démarrer :\n- l'accueil est ouvert du lundi au vendredi de 7h30 à 12h30 et de 13h30 à 16h30 ;\n- le mot de passe du poste et de la messagerie te sera remis par Nadia ;\n- les modèles de courriers sont dans le dossier partagé « Modèles » ;\n- n'hésite pas à poser toutes tes questions.\n\nBonne première journée !\n\n\nDidier Sainte-Rose\nGérant – SOLÉA Services\n0590 00 11 22"}, {"id": "r41", "dossier": "reception", "type": "recu", "de": {"nom": "Hôtel Les Raisins Clairs", "email": "direction@hotel-raisinsclairs.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Contrat de maintenance – 24 climatiseurs", "date": "2024-10-15T11:40:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nNous souhaitons mettre en place un contrat de maintenance pour les 24 climatiseurs de notre établissement (chambres et espaces communs).\n\nLes interventions devront avoir lieu en dehors de la haute saison (décembre à avril) et sans gêner nos clients.\n\nPourriez-vous nous faire une proposition chiffrée ?\n\nCordialement,\nLa direction\nHôtel Les Raisins Clairs – Saint-François"}, {"id": "r42", "dossier": "reception", "type": "recu", "de": {"nom": "Fournisseur Solaire Plus", "email": "info@solaireplus.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Changement de coordonnées bancaires", "date": "2024-12-03T09:12:00-04:00", "lu": true, "prioritaire": false, "pj": ["nouveau_RIB.pdf"], "corps": "Madame, Monsieur,\n\nNous vous informons que nos coordonnées bancaires ont changé. Merci d'effectuer désormais tous vos règlements sur notre nouveau compte, dont le RIB est joint à ce message.\n\nMerci de mettre à jour vos fichiers au plus vite.\n\nService comptabilité\nSolaire Plus"}, {"id": "r43", "dossier": "reception", "type": "recu", "de": {"nom": "Christelle Moreau", "email": "c.moreau@hotmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Facture", "date": "2024-06-18T16:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nPourriez-vous m'envoyer la facture de l'intervention du 10 juin ? Je ne l'ai pas reçue.\n\nMerci,\nChristelle Moreau"}, {"id": "s01", "dossier": "indesirables", "type": "recu", "de": {"nom": "Livraison Colis Express", "email": "suivi@colis-express-livraison.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Votre colis est en attente – frais de douane", "date": "2026-10-03T22:41:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nVotre colis n° FR7785 1100 23 n'a pas pu être livré : des frais de douane de 2,99 € restent à régler.\n\nSans paiement sous 48h, le colis sera retourné à l'expéditeur.\n\nPayer maintenant : http://colis-express-livraison.fictif/paiement"}, {"id": "s02", "dossier": "indesirables", "type": "recu", "de": {"nom": "Grand Jeu Caraïbes", "email": "gagnant@grand-jeu-caraibes.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "FÉLICITATIONS !!! Vous avez gagné un iPhone", "date": "2026-09-27T05:02:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Félicitations !\n\nVotre adresse a été tirée au sort parmi 10 000 participants. Vous avez gagné un smartphone dernière génération.\n\nPour recevoir votre lot, il vous suffit de confirmer vos coordonnées et de régler les frais d'envoi (1 €).\n\nRéclamez votre cadeau ici avant minuit !"}, {"id": "s03", "dossier": "indesirables", "type": "recu", "de": {"nom": "Référencement Pro", "email": "contact@referencement-top1.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Votre site en 1re page de Google en 7 jours", "date": "2026-09-19T14:20:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nNous avons analysé votre site internet : il est invisible sur Google. Nos experts peuvent vous placer en première position en 7 jours seulement, garanti ou remboursé.\n\nOffre exceptionnelle : 99 € au lieu de 499 €, valable aujourd'hui uniquement.\n\nRépondez OUI à ce mail pour en profiter."}, {"id": "s04", "dossier": "indesirables", "type": "recu", "de": {"nom": "Service Facturation", "email": "facturation@fournisseur-energie-pro.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Facture impayée n° 88412 – dernier avis avant poursuites", "date": "2026-09-30T02:15:00-04:00", "lu": true, "prioritaire": false, "pj": ["facture_88412.zip"], "corps": "Madame, Monsieur,\n\nMalgré nos relances, votre facture n° 88412 d'un montant de 849,00 € reste impayée.\n\nSans règlement sous 24h, votre dossier sera transmis à notre service contentieux et des poursuites seront engagées.\n\nOuvrez la facture jointe pour régler votre dette."}, {"id": "s05", "dossier": "indesirables", "type": "recu", "de": {"nom": "Jean Ramassamy", "email": "j.ramassamy@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Re: devis entretien 2026", "date": "2026-09-23T18:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonsoir,\n\nSuite à notre échange téléphonique, je vous confirme que je souhaite renouveler mon contrat d'entretien pour le chauffe-eau installé en décembre dernier.\n\nPouvez-vous m'envoyer le nouveau contrat ?\n\nMerci,\nJean Ramassamy"}, {"id": "s06", "dossier": "indesirables", "type": "recu", "de": {"nom": "Crypto Avenir", "email": "invest@crypto-avenir.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Doublez votre argent en 30 jours", "date": "2026-08-11T11:11:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Investissez dès aujourd'hui dans la crypto-monnaie de demain. Nos clients ont doublé leur capital en un mois.\n\nInscription gratuite. Places limitées."}, {"id": "s07", "dossier": "indesirables", "type": "recu", "de": {"nom": "Direction Générale", "email": "direction.solea@gmail.fictif"}, "a": ["accueil@solea-services.gp"], "cc": [], "objet": "Demande urgente et confidentielle", "date": "2026-09-25T13:05:00-04:00", "lu": false, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nJe suis en réunion et je ne peux pas être joint par téléphone. J'ai besoin que tu fasses un virement urgent de 4 800 € à un nouveau fournisseur aujourd'hui avant 16h. Je t'envoie le RIB dans un second mail.\n\nMerci de rester discrète, c'est confidentiel. Ne parle de cela à personne pour le moment.\n\nDidier"}, {"id": "e01", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["h.lancelot@gmail.fictif"], "cc": [], "objet": "Confirmation de votre rendez-vous", "date": "2026-10-01T10:15:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour Monsieur Lancelot,\n\nNous vous confirmons le passage de notre technicien, M. Rudy Alexis, le mercredi 7 octobre 2026 entre 8h et 10h à votre domicile de Sainte-Anne, pour l'entretien annuel de votre climatisation.\n\nEn cas d'empêchement, merci de nous prévenir au 0590 00 11 22 au moins 24 heures à l'avance.\n\n\nCordialement,\n\nL'accueil\nSOLÉA Services\n12 rue des Flamboyants – ZI de Jarry – 97122 Baie-Mahault\n0590 00 11 22"}, {"id": "e02", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["c.moreau@hotmail.fictif"], "cc": [], "objet": "re", "date": "2026-10-02T15:48:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Coucou,\n\nok pas de souci on vous rapelle des que possible pour le truc de la clim. dsl on etait débordé ce matin lol\n\nbisous"}, {"id": "e03", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["s.numa@cabinet-numa.fictif"], "cc": [], "objet": "Factures août", "date": "2026-09-10T09:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour Madame Numa,\n\nVeuillez trouver ci-joint les factures fournisseurs du mois d'août, ainsi que le relevé bancaire correspondant.\n\nJe reste à votre disposition pour tout complément.\n\n\nCordialement,\n\nL'accueil\nSOLÉA Services\n12 rue des Flamboyants – ZI de Jarry – 97122 Baie-Mahault\n0590 00 11 22"}, {"id": "e04", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["s.democrite@solea-services.gp", "r.alexis@solea-services.gp", "n.berthelot@solea-services.gp", "l.belair@orange.fictif"], "cc": [], "objet": "Réunion d'équipe", "date": "2026-09-03T08:10:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour à tous,\n\nLa réunion d'équipe aura lieu jeudi à 8h30 en salle de réunion.\n\nMerci de votre présence.\n\n\nCordialement,\n\nL'accueil\nSOLÉA Services\n12 rue des Flamboyants – ZI de Jarry – 97122 Baie-Mahault\n0590 00 11 22"}, {"id": "e05", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["j.ramassamy@gmail.fictif"], "cc": [], "objet": "Confirmation d'installation", "date": "2025-11-07T09:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour Monsieur Ramassamy,\n\nNous accusons réception de votre devis signé n° D-2025-0198 et vous en remercions.\n\nL'installation de votre chauffe-eau solaire 200 L est programmée le mardi 16 décembre 2025 à partir de 8h. L'intervention durera environ une journée.\n\nLe solde de la facture sera à régler à la fin des travaux.\n\n\nCordialement,\n\nL'accueil\nSOLÉA Services\n12 rue des Flamboyants – ZI de Jarry – 97122 Baie-Mahault\n0590 00 11 22"}, {"id": "e06", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["compta@ctd-antilles.fictif"], "cc": [], "objet": "Facture", "date": "2026-07-28T11:20:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "bonjour,\non a pas reçu la facture pour la commande de juillet, merci de nous la renvoyer"}, {"id": "e07", "dossier": "envoyes", "type": "envoye", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["direction@hotel-raisinsclairs.fictif"], "cc": [], "objet": "Proposition de contrat de maintenance", "date": "2024-10-22T14:00:00-04:00", "lu": true, "prioritaire": false, "pj": ["proposition_maintenance_RaisinsClairs.pdf"], "corps": "Madame, Monsieur,\n\nSuite à votre demande du 15 octobre, nous avons le plaisir de vous adresser notre proposition de contrat de maintenance pour les 24 climatiseurs de votre établissement.\n\nComme vous le souhaitiez, les interventions seraient planifiées entre mai et novembre, en concertation avec votre équipe, afin de ne pas gêner votre clientèle.\n\nNous restons à votre disposition pour en discuter.\n\n\nCordialement,\n\nL'accueil\nSOLÉA Services\n12 rue des Flamboyants – ZI de Jarry – 97122 Baie-Mahault\n0590 00 11 22"}, {"id": "b01", "dossier": "brouillons", "type": "brouillon", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["commandes@ctd-antilles.fictif"], "cc": [], "objet": "RE: Votre commande CMD-8841 – report de livraison", "date": "2026-10-01T11:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nSuite à votre mail concernant le retard de livraison, nous"}, {"id": "b02", "dossier": "brouillons", "type": "brouillon", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": [], "cc": [], "objet": "Compte rendu réunion du ...", "date": "2026-09-25T17:20:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Présents :\nAbsents :\nExcusés :\n\nPoints abordés :\n1.\n2.\n3.\n\nDécisions prises :\n\nActions à mener (qui / quoi / quand) :\n\nProchaine réunion :"}, {"id": "b03", "dossier": "brouillons", "type": "brouillon", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["l.belair@orange.fictif"], "cc": [], "objet": "Votre réclamation", "date": "2026-10-05T08:30:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Madame,\n\nNous avons bien reçu votre mail et nous sommes désolés"}, {"id": "b04", "dossier": "brouillons", "type": "brouillon", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": ["eco@mairie-bm.fictif"], "cc": [], "objet": "Inscription", "date": "2026-09-12T10:05:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour,\n\nNous souhaitons inscrire 2 personnes à la Rencontre des entreprises de Jarry :\n- M. Didier Sainte-Rose, gérant\n-"}, {"id": "b05", "dossier": "brouillons", "type": "brouillon", "de": {"nom": "Accueil SOLÉA", "email": "accueil@solea-services.gp"}, "a": [], "cc": [], "objet": "Devis", "date": "2026-10-02T09:00:00-04:00", "lu": true, "prioritaire": false, "pj": [], "corps": "Bonjour Monsieur,\n\nSuite à votre demande, veuillez trouver ci-joint"}];
+const ADRESSE = "accueil@solea-services.gp";
+const CLE = "solea-boite-v2";
+const SYS = [
+  {id:"reception",nom:"Boîte de réception"},{id:"brouillons",nom:"Brouillons"},{id:"envoyes",nom:"Éléments envoyés"},
+  {id:"indesirables",nom:"Courrier indésirable"},{id:"corbeille",nom:"Éléments supprimés"}
+];
+const S = {mails:[], journal:[], dossiers:[], dossier:"reception", sel:null, q:"", journalOuvert:false, coches:new Set()};
+
+/* ---------- utilitaires ---------- */
+const $ = id => document.getElementById(id);
+const el = (tag, props={}, ...kids) => { const e=document.createElement(tag); for(const [k,v] of Object.entries(props)){ if(k==="class") e.className=v; else if(k.startsWith("on")) e.addEventListener(k.slice(2),v); else if(v===true) e.setAttribute(k,""); else if(v!==undefined&&v!==null&&v!==false) e.setAttribute(k,v);} for(const k of kids.flat()){ if(k==null||k===false) continue; e.append(k.nodeType?k:document.createTextNode(String(k))); } return e; };
+function fmtDate(iso, long){ const d=new Date(iso); if(isNaN(d)) return ""; const auj=new Date();
+  if(long) return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  if(d.toDateString()===auj.toDateString()) return d.toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  if(d.getFullYear()===auj.getFullYear()) return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit"});
+  return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}); }
+function toast(t){ const x=el("div",{class:"toast",role:"status"},t); document.body.append(x); setTimeout(()=>x.remove(),2600); }
+const nouvelId = p => (p||"m") + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const decouper = s => (s||"").split(/[;,]/).map(x=>x.trim()).filter(Boolean);
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* ---------- dossiers ---------- */
+const estSys = id => SYS.some(d=>d.id===id);
+function nomDossier(id){ const s=SYS.find(d=>d.id===id); if(s) return s.nom; const p=S.dossiers.find(d=>d.id===id); return p?p.nom:"Boîte de réception"; }
+function enfants(pid){ return S.dossiers.filter(d=>(d.parent||null)===pid).sort((a,b)=>a.nom.localeCompare(b.nom,"fr")); }
+function arbre(pid=null, niv=0){ return enfants(pid).flatMap(d=>[{...d,niv}, ...arbre(d.id,niv+1)]); }
+function descendants(id){ return enfants(id).flatMap(d=>[d.id,...descendants(d.id)]); }
+function cheminDossier(id){ const p=S.dossiers.find(d=>d.id===id); if(!p) return nomDossier(id); return p.parent? cheminDossier(p.parent)+" › "+p.nom : p.nom; }
+
+/* ---------- stockage local ---------- */
+const store = (()=>{
+  let st = {mails:clone(SEED), journal:[], dossiers:[]};
+  try{ const s=JSON.parse(localStorage.getItem(CLE)||"null"); if(s && Array.isArray(s.mails)) st={mails:s.mails, journal:Array.isArray(s.journal)?s.journal:[], dossiers:Array.isArray(s.dossiers)?s.dossiers:[]}; }catch(e){}
+  const maj=()=>{ try{ localStorage.setItem(CLE, JSON.stringify(st)); }catch(e){} S.mails=st.mails; S.journal=st.journal; S.dossiers=st.dossiers; render(); };
+  return {
+    init:maj,
+    setMail(m){ st.mails=st.mails.filter(x=>x.id!==m.id).concat([m]); maj(); },
+    updMails(ids,p){ const set=new Set(ids); st.mails=st.mails.map(x=>set.has(x.id)?{...x,...p}:x); maj(); },
+    delMails(ids){ const set=new Set(ids); st.mails=st.mails.filter(x=>!set.has(x.id)); maj(); },
+    log(action,objet){ st.journal=[{quand:new Date().toISOString(),action,objet:objet||""}].concat(st.journal).slice(0,150); maj(); },
+    setDossiers(d){ st.dossiers=d; maj(); },
+    reset(){ st={mails:clone(SEED), journal:[], dossiers:[]}; maj(); }
+  };
+})();
+
+/* ---------- fenêtres ---------- */
+function fermer(){ $("calque").replaceChildren(); }
+function fenetre(titre, contenu, boutons){
+  const w=el("div",{class:"voile",onclick:e=>{ if(e.target===w) fermer(); }},
+    el("div",{class:"fenetre",role:"dialog","aria-modal":"true","aria-label":titre}, el("div",{class:"tete"},titre), el("div",{class:"cont"},contenu), el("div",{class:"pied"},boutons)));
+  $("calque").replaceChildren(w);
+}
+function dlgTexte(titre,label,val){ return new Promise(res=>{ const f=el("input",{id:"dlgT",value:val||"",maxlength:"60"});
+  const ok=()=>{ const v=f.value.trim(); if(!v){f.focus();return;} fermer(); res(v); };
+  f.addEventListener("keydown",e=>{ if(e.key==="Enter") ok(); if(e.key==="Escape"){fermer();res(null);} });
+  fenetre(titre,[el("label",{for:"dlgT"},label),f],[el("button",{class:"btn",onclick:()=>{fermer();res(null);}},"Annuler"),el("button",{class:"btn prim",onclick:ok},"Valider")]); f.focus(); f.select(); }); }
+function dlgConfirmer(titre,texte,libelle){ return new Promise(res=>{ fenetre(titre,[el("div",{},texte)],[el("button",{class:"btn",onclick:()=>{fermer();res(false);}},"Annuler"),el("button",{class:"btn prim",onclick:()=>{fermer();res(true);}},libelle||"Confirmer")]); }); }
+
+/* ---------- actions dossiers ---------- */
+async function creerDossier(parent){
+  const nom=await dlgTexte(parent?"Nouveau sous-dossier":"Nouveau dossier", parent?`Nom du sous-dossier dans « ${nomDossier(parent)} »`:"Nom du dossier");
+  if(!nom) return;
+  if(enfants(parent||null).some(d=>d.nom.toLowerCase()===nom.toLowerCase())){ toast("Un dossier porte déjà ce nom à cet endroit"); return; }
+  const d={id:nouvelId("d"),nom,parent:parent||null}; store.setDossiers(S.dossiers.concat([d])); store.log(`créé le dossier « ${cheminDossier(d.id)} »`);
+  S.dossier=d.id; S.sel=null; S.coches.clear(); vue("liste"); render(); toast("Dossier créé");
+}
+async function renommerDossier(id){
+  const d=S.dossiers.find(x=>x.id===id); if(!d) return; const nom=await dlgTexte("Renommer le dossier","Nouveau nom",d.nom); if(!nom||nom===d.nom) return;
+  const avant=d.nom; store.setDossiers(S.dossiers.map(x=>x.id===id?{...x,nom}:x)); store.log(`renommé le dossier « ${avant} » en « ${nom} »`);
+}
+async function supprimerDossier(id){
+  const ids=[id,...descendants(id)]; const n=S.mails.filter(m=>ids.includes(m.dossier)).length;
+  const ok=await dlgConfirmer("Supprimer le dossier",`Supprimer « ${nomDossier(id)} »${ids.length>1?" et ses sous-dossiers":""} ? ${n?`Les ${n} message(s) qu'il contient retourneront dans la Boîte de réception.`:"Il est vide."}`,"Supprimer");
+  if(!ok) return; const nom=nomDossier(id);
+  store.updMails(S.mails.filter(m=>ids.includes(m.dossier)).map(m=>m.id),{dossier:"reception"});
+  store.setDossiers(S.dossiers.filter(d=>!ids.includes(d.id))); store.log(`supprimé le dossier « ${nom} »`);
+  S.dossier="reception"; S.sel=null; S.coches.clear(); render();
+}
+
+/* ---------- actions messages ---------- */
+function deplacer(ids, dest){
+  ids=ids.filter(id=>{ const m=S.mails.find(x=>x.id===id); return m && m.dossier!==dest; }); if(!ids.length) return;
+  const extra = dest==="corbeille" ? {} : {};
+  S.mails.filter(m=>ids.includes(m.id)).forEach(m=>{ if(dest==="corbeille") store.updMails([m.id],{dossierAvant:m.dossier}); });
+  store.updMails(ids,{dossier:dest, modifieLe:new Date().toISOString(), ...extra});
+  const m0=S.mails.find(x=>x.id===ids[0]);
+  store.log(ids.length>1?`déplacé ${ids.length} messages vers « ${cheminDossier(dest)} »`:`déplacé vers « ${cheminDossier(dest)} »`, ids.length>1?"":m0.objet);
+  toast((ids.length>1?ids.length+" messages déplacés":"Déplacé")+" vers "+nomDossier(dest));
+  if(ids.includes(S.sel)){ S.sel=null; vue("liste"); }
+  ids.forEach(i=>S.coches.delete(i)); render();
+}
+function supprimer(ids){
+  const dansCorb=ids.filter(id=>(S.mails.find(m=>m.id===id)||{}).dossier==="corbeille");
+  const autres=ids.filter(id=>!dansCorb.includes(id));
+  if(autres.length) deplacer(autres,"corbeille");
+  if(dansCorb.length){ dlgConfirmer("Suppression définitive",`Supprimer définitivement ${dansCorb.length>1?dansCorb.length+" messages":"ce message"} ? Cette action est irréversible.`,"Supprimer").then(ok=>{ if(!ok) return; store.delMails(dansCorb); store.log(`supprimé définitivement ${dansCorb.length} message(s)`); dansCorb.forEach(i=>S.coches.delete(i)); if(dansCorb.includes(S.sel)){S.sel=null;vue("liste");} render(); }); }
+}
+function restaurer(m){ const d=m.dossierAvant && (estSys(m.dossierAvant)||S.dossiers.some(x=>x.id===m.dossierAvant)) ? m.dossierAvant : (m.type==="brouillon"?"brouillons":m.type==="envoye"?"envoyes":"reception"); deplacer([m.id],d); }
+function marquerLu(ids,lu){ store.updMails(ids,{lu}); }
+function basculerPrio(m){ store.updMails([m.id],{prioritaire:!m.prioritaire}); store.log(m.prioritaire?"retiré l'indicateur de suivi":"marqué comme prioritaire", m.objet); }
+
+/* ---------- rédaction ---------- */
+function cite(m){ return `\n\n----- Message d'origine -----\nDe : ${m.de.nom} <${m.de.email}>\nDate : ${fmtDate(m.date,true)}\nÀ : ${(m.a||[]).join("; ")}\nObjet : ${m.objet}\n\n${m.corps}`; }
+function prefixe(p, obj){ return p+" : "+(obj||"").replace(/^((re|tr|fwd?)\s*:\s*)+/i,""); }
+function composer(init){
+  const d = Object.assign({id:null,a:"",cc:"",objet:"",corps:"",pj:""}, init||{});
+  const fA=el("input",{value:d.a,id:"cA"}), fC=el("input",{value:d.cc,id:"cC"}), fO=el("input",{value:d.objet,id:"cO"}), fT=el("textarea",{id:"cT"}), fP=el("input",{value:d.pj,id:"cP",placeholder:"ex. devis_ozier.pdf"});
+  fT.value=d.corps;
+  const construire=(dossier,type)=>({ id:d.id||nouvelId(), dossier, type, de:{nom:"Accueil SOLÉA",email:ADRESSE}, a:decouper(fA.value), cc:decouper(fC.value), objet:fO.value.trim()||"(sans objet)", corps:fT.value, pj:decouper(fP.value), date:new Date().toISOString(), lu:true, prioritaire:false, modifieLe:new Date().toISOString() });
+  const envoyer=()=>{ if(!decouper(fA.value).length){ toast("Indique au moins un destinataire"); fA.focus(); return; }
+    const m=construire("envoyes","envoye"); store.setMail(m); store.log("envoyé un message", m.objet); if(S.sel===d.id) S.sel=null; fermer(); render(); toast("Message envoyé"); };
+  const brouillon=()=>{ const m=construire("brouillons","brouillon"); store.setMail(m); store.log(d.id?"modifié un brouillon":"enregistré un brouillon", m.objet); fermer(); toast("Brouillon enregistré"); };
+  const lab=(t,f)=>[el("label",{for:f.id},t),f];
+  fenetre(d.titre||"Nouveau message", [lab("À (séparer les adresses par ; )",fA), lab("Cc",fC), lab("Objet",fO), lab("Message",fT), lab("Pièces jointes (noms de fichiers fictifs)",fP)],
+    [el("button",{class:"btn",onclick:fermer},"Annuler"), el("button",{class:"btn",onclick:brouillon},"Enregistrer en brouillon"), el("button",{class:"btn prim",onclick:envoyer},"Envoyer")]);
+  (d.a?fT:fA).focus(); if(d.a) fT.setSelectionRange(0,0);
+}
+function repondre(m,tous){
+  const autres = tous ? [...(m.a||[]),...(m.cc||[])].filter(x=>x.toLowerCase()!==ADRESSE) : [];
+  composer({titre:tous?"Répondre à tous":"Répondre", a:m.de.email===ADRESSE?(m.a||[]).join("; "):m.de.email, cc:autres.join("; "), objet:prefixe("RE",m.objet), corps:cite(m)});
+}
+function transferer(m){ composer({titre:"Transférer", objet:prefixe("TR",m.objet), corps:cite(m), pj:(m.pj||[]).join("; ")}); }
+
+/* ---------- rendu ---------- */
+function vue(v){ $("corps").dataset.vue=v; }
+function choixDossier(exclure, surChoix, libelle){
+  const s=el("select",{class:"btn","aria-label":libelle||"Déplacer vers",onchange:e=>{ const v=e.target.value; e.target.value=""; if(v) surChoix(v); }},
+    el("option",{value:""},libelle||"Déplacer vers…"),
+    ...SYS.filter(d=>!["brouillons","envoyes"].includes(d.id) && d.id!==exclure).map(d=>el("option",{value:d.id},d.nom)),
+    ...(S.dossiers.length?[el("option",{disabled:true},"── Mes dossiers ──")]:[]),
+    ...arbre().filter(d=>d.id!==exclure).map(d=>el("option",{value:d.id},"\u00a0\u00a0".repeat(d.niv*2)+d.nom)));
+  return s;
+}
+function boutonDossier(id,nom,cls){
+  const ms=S.mails.filter(m=>m.dossier===id); const nl=ms.filter(m=>!m.lu).length;
+  const nb = id==="brouillons" ? (ms.length?el("span",{class:"nb gris"},ms.length):null) : (nl?el("span",{class:"nb"},nl):null);
+  return el("button",{class:"dossier"+(cls?" "+cls:"")+(S.dossier===id?" actif":""),"aria-current":S.dossier===id?"true":null,onclick:()=>{S.dossier=id;S.sel=null;S.coches.clear();vue("liste");render();}}, nom, nb);
+}
+function render(){
+  const dz=$("dossiers"); dz.replaceChildren(el("button",{class:"nouveau",onclick:()=>composer()},"Nouveau message"));
+  SYS.forEach(d=>dz.append(boutonDossier(d.id,d.nom)));
+  dz.append(el("h2",{},"Mes dossiers"));
+  arbre().forEach(d=>dz.append(boutonDossier(d.id,d.nom,d.niv===0?"":d.niv===1?"sous":"sous2")));
+  dz.append(el("button",{class:"ajout",onclick:()=>creerDossier(null)},"+ Nouveau dossier"));
+  dz.append(el("h2",{},"Exercice"));
+  dz.append(el("button",{class:"dossier",onclick:async()=>{ if(!await dlgConfirmer("Recommencer l'exercice","Ta boîte revient à son état de départ : tes dossiers, tes réponses et ton classement seront effacés.","Recommencer")) return; S.sel=null; S.coches.clear(); S.dossier="reception"; store.reset(); vue("liste"); toast("Exercice remis à zéro"); }},"Recommencer l'exercice"));
+
+  if(!estSys(S.dossier) && !S.dossiers.some(d=>d.id===S.dossier)) S.dossier="reception";
+  $("titreListe").textContent=estSys(S.dossier)?nomDossier(S.dossier):cheminDossier(S.dossier);
+  $("outilsDossier").replaceChildren(estSys(S.dossier)?"":el("div",{class:"outils-dossier"},
+    el("button",{class:"btn",onclick:()=>creerDossier(S.dossier)},"+ Sous-dossier"),
+    el("button",{class:"btn",onclick:()=>renommerDossier(S.dossier)},"Renommer"),
+    el("button",{class:"btn danger",onclick:()=>supprimerDossier(S.dossier)},"Supprimer le dossier")));
+
+  const q=S.q.toLowerCase();
+  let ms=S.mails.filter(m=>m.dossier===S.dossier).filter(m=>!q || [m.de.nom,m.de.email,m.objet,m.corps,(m.a||[]).join(" ")].join(" ").toLowerCase().includes(q));
+  ms.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  [...S.coches].forEach(id=>{ if(!ms.some(m=>m.id===id)) S.coches.delete(id); });
+
+  const nC=S.coches.size;
+  $("barre").replaceChildren(!ms.length?"":el("div",{class:"barre"},
+    el("label",{style:"display:flex;gap:6px;align-items:center"}, el("input",{type:"checkbox",checked:nC>0&&nC===ms.length,"aria-label":"Tout sélectionner",onchange:e=>{ if(e.target.checked) ms.forEach(m=>S.coches.add(m.id)); else S.coches.clear(); render(); }}), nC?`${nC} sélectionné(s)`:"Tout sélectionner"),
+    nC? [choixDossier(S.dossier, v=>deplacer([...S.coches],v)), el("button",{class:"btn",onclick:()=>{marquerLu([...S.coches],true);}},"Marquer lu"), el("button",{class:"btn",onclick:()=>{marquerLu([...S.coches],false);}},"Marquer non lu"), el("button",{class:"btn danger",onclick:()=>supprimer([...S.coches])},"Supprimer")] : null));
+
+  const lz=$("liste");
+  if(!ms.length) lz.replaceChildren(el("div",{class:"vide"}, q?"Aucun message ne correspond à la recherche.":"Ce dossier est vide."));
+  else lz.replaceChildren(...ms.map(m=>{
+    const qui = (m.type==="recu") ? m.de.nom : ("À : "+((m.a||[]).join(", ")||"(aucun destinataire)"));
+    return el("div",{class:"ligne-mail"+(m.lu?"":" nonlu")},
+      el("label",{class:"case"}, el("input",{type:"checkbox",checked:S.coches.has(m.id),"aria-label":"Sélectionner : "+m.objet,onchange:e=>{ e.target.checked?S.coches.add(m.id):S.coches.delete(m.id); render(); }})),
+      el("button",{class:"mail"+(m.lu?"":" nonlu")+(S.sel===m.id?" sel":""),onclick:()=>ouvrir(m.id)},
+        el("div",{class:"l1"}, m.prioritaire?el("span",{class:"drapeau","aria-label":"prioritaire"},"!"):null, el("span",{class:"exp"},qui), el("span",{class:"dt"},fmtDate(m.date))),
+        el("div",{class:"obj"}, m.objet, (m.pj&&m.pj.length)?" 📎":""),
+        el("div",{class:"ext"}, (m.corps||"").replace(/\s+/g," ").slice(0,90))));
+  }));
+
+  const m=S.mails.find(x=>x.id===S.sel); const lr=$("lecteur");
+  if(!m){ lr.replaceChildren(el("div",{class:"vide"},"Sélectionne un message pour le lire.")); }
+  else{
+    const spam=m.dossier==="indesirables";
+    const acts = m.type==="brouillon"
+      ? [el("button",{class:"btn prim",onclick:()=>composer({id:m.id,titre:"Modifier le brouillon",a:(m.a||[]).join("; "),cc:(m.cc||[]).join("; "),objet:m.objet,corps:m.corps,pj:(m.pj||[]).join("; ")})},"Reprendre le brouillon")]
+      : [el("button",{class:"btn prim",onclick:()=>repondre(m,false)},"Répondre"), el("button",{class:"btn",onclick:()=>repondre(m,true)},"Répondre à tous"), el("button",{class:"btn",onclick:()=>transferer(m)},"Transférer")];
+    const fin = m.dossier==="corbeille"
+      ? [el("button",{class:"btn",onclick:()=>restaurer(m)},"Restaurer"), el("button",{class:"btn danger",onclick:()=>supprimer([m.id])},"Supprimer définitivement")]
+      : [m.type==="brouillon"?null:choixDossier(m.dossier, v=>deplacer([m.id],v)),
+         m.type==="recu"?(spam? el("button",{class:"btn",onclick:()=>deplacer([m.id],"reception")},"Ce n'est pas un indésirable") : el("button",{class:"btn",onclick:()=>deplacer([m.id],"indesirables")},"Courrier indésirable")):null,
+         el("button",{class:"btn"+(m.prioritaire?" on":""),"aria-pressed":m.prioritaire?"true":"false",onclick:()=>basculerPrio(m)},m.prioritaire?"Prioritaire":"Marquer prioritaire"),
+         m.type==="recu"?el("button",{class:"btn",onclick:()=>{marquerLu([m.id],false); S.sel=null; vue("liste");}},"Marquer non lu"):null,
+         el("button",{class:"btn danger",onclick:()=>supprimer([m.id])},"Supprimer")];
+    lr.replaceChildren(
+      el("div",{class:"actions"}, el("button",{class:"btn retour",onclick:()=>{S.sel=null;vue("liste");render();}},"Retour"), ...acts, ...fin),
+      spam? el("div",{class:"alerte-spam"},"Ce message a été classé comme courrier indésirable. Vérifie l'expéditeur avant de cliquer sur un lien ou d'ouvrir une pièce jointe.") : null,
+      el("h2",{}, m.objet),
+      el("div",{class:"meta"},
+        el("div",{}, el("b",{},"De : "), `${m.de.nom} <${m.de.email}>`),
+        el("div",{}, el("b",{},"À : "), (m.a||[]).join("; ")||"—"),
+        (m.cc&&m.cc.length)?el("div",{}, el("b",{},"Cc : "), m.cc.join("; ")):null,
+        el("div",{}, el("b",{},"Date : "), fmtDate(m.date,true)),
+        el("div",{}, el("b",{},"Dossier : "), cheminDossier(m.dossier))),
+      el("div",{class:"texte"}, m.corps||""),
+      (m.pj&&m.pj.length)? el("div",{class:"pjs"}, ...m.pj.map(p=>el("span",{class:"pj",title:"Pièce jointe fictive"},"📎 "+p))) : null,
+      m.modifieLe? el("div",{class:"trace"}, `Dernière modification : ${fmtDate(m.modifieLe,true)}`) : null
+    );
+  }
+  const jz=$("calqueJournal"); if(jz) jz.remove();
+  if(S.journalOuvert){
+    document.body.append(el("aside",{class:"journal",id:"calqueJournal","aria-label":"Mon historique"},
+      el("h2",{}, el("span",{},"Mon historique"), el("button",{class:"btn",onclick:()=>{S.journalOuvert=false;render();}},"Fermer")),
+      ...(S.journal.length? S.journal.map(e=>el("div",{class:"jl"}, el("div",{}, "J'ai ", e.action, e.objet?` : « ${e.objet} »`:""), el("div",{class:"q"},fmtDate(e.quand,true)))) : [el("div",{class:"vide"},"Aucune action pour l'instant.")])));
+  }
+}
+function ouvrir(id){ S.sel=id; vue("lecteur"); const m=S.mails.find(x=>x.id===id); if(m && !m.lu) store.updMails([id],{lu:true}); else render(); }
+
+$("recherche").addEventListener("input",e=>{S.q=e.target.value;render();});
+$("bJournal").addEventListener("click",()=>{S.journalOuvert=!S.journalOuvert;render();});
+$("rDossiers").addEventListener("click",()=>vue("dossiers"));
+store.init();
+</script>
+</body>
+</html>
