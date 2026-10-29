@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – CADGA session 12</title>
+<style>
+  :root { --vert:#45967C; --bleu:#247091; --violet:#484596; --rouge:#C00000; --fond:#F4F7F8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Calibri, "Segoe UI", Arial, sans-serif; background:var(--fond); color:#222; }
+  header { background:var(--vert); color:#fff; text-align:center; padding:18px 12px; border-radius:0 0 14px 14px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+  header h1 { margin:0; font-size:1.5rem; }
+  header p { margin:4px 0 0; font-style:italic; font-size:.92rem; }
+  main { max-width:720px; margin:18px auto; padding:0 12px 40px; }
+  .carte { background:#fff; border-left:6px solid var(--bleu); border-radius:12px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:16px; }
+  .manche { color:var(--violet); font-weight:bold; font-size:.95rem; text-transform:uppercase; letter-spacing:.03em; }
+  .progression { height:8px; background:#e3e8ea; border-radius:4px; overflow:hidden; margin:8px 0 14px; }
+  .progression div { height:100%; background:var(--vert); transition:width .3s; }
+  .question { font-size:1.15rem; font-weight:bold; margin:6px 0 4px; }
+  .consigne { font-size:.88rem; font-style:italic; color:#666; margin-bottom:12px; }
+  .choix { display:block; width:100%; text-align:left; padding:12px 14px; margin:8px 0; border:2px solid #d5dde0; border-radius:10px; background:#fff; font-size:1rem; cursor:pointer; font-family:inherit; }
+  .choix:hover:not(:disabled) { border-color:var(--bleu); background:#f0f6f9; }
+  .choix.coche { border-color:var(--bleu); background:#e6f0f5; }
+  .choix.bon { border-color:var(--vert); background:#e3f3ec; font-weight:bold; }
+  .choix.faux { border-color:var(--rouge); background:#fbe9e9; }
+  .choix:disabled { cursor:default; }
+  .btn { display:inline-block; background:var(--violet); color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:1rem; font-family:inherit; cursor:pointer; margin-top:10px; }
+  .btn:disabled { background:#aaa; cursor:default; }
+  .btn.vert { background:var(--vert); }
+  .retour { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:.97rem; }
+  .retour.ok { background:#e3f3ec; border-left:5px solid var(--vert); }
+  .retour.ko { background:#fbe9e9; border-left:5px solid var(--rouge); }
+  input[type=text] { width:100%; padding:12px; font-size:1rem; border:2px solid #d5dde0; border-radius:10px; font-family:inherit; }
+  .score { font-size:2.4rem; font-weight:bold; color:var(--violet); text-align:center; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; }
+  th { background:var(--bleu); color:#fff; padding:8px; text-align:left; }
+  td { padding:8px; border-bottom:1px solid #e3e8ea; }
+  .niv { font-weight:bold; border-radius:6px; padding:3px 8px; font-size:.85rem; white-space:nowrap; }
+  .acquis { background:#e3f3ec; color:#2d6b57; } .encours { background:#fff4d6; color:#8a6400; } .revoir { background:#fbe9e9; color:var(--rouge); }
+  .arevoir li { margin-bottom:8px; }
+  footer { text-align:center; font-size:.75rem; color:#777; padding:10px; border-top:1px solid var(--vert); max-width:720px; margin:0 auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quiz des acquis</h1>
+  <p>CADGA · CP3 · Mails, courrier, nommage, classement et archivage</p>
+</header>
+<main id="app"></main>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 10-2026 - Quiz des acquis S10-S11</footer>
+
+<script>
+const MANCHES = [
+ { nom: "Mails et courrier", questions: [
+  { q:"Quand je mets un destinataire en Cci, qu'est-ce que je protège ?", o:["Son adresse : les autres destinataires ne la voient pas","Rien : c'est une copie pour information, visible de tous","Le contenu du mail : il est crypté"], a:[0], e:"Cci = copie carbone invisible : l'adresse reste cachée aux autres destinataires. Utile pour les envois groupés et la protection des données." },
+  { q:"Un pli porte la mention « Personnel et confidentiel ». Que faites-vous ?", o:["Je ne l'ouvre pas : je l'enregistre et je le remets fermé à son destinataire","Je l'ouvre pour le tamponner, puis je le referme","Je l'ouvre seulement si mon responsable est absent"], a:[0], e:"On n'ouvre jamais un pli « Personnel » ou « Confidentiel ». On l'enregistre (enveloppe fermée) et on le transmet tel quel." },
+  { q:"Quelle est la toute première étape du courrier « Arrivée » ?", o:["Réceptionner : vérifier l'adresse, compter les plis, signer les recommandés","Trier","Tamponner"], a:[0], e:"Réceptionner → trier → ouvrir → tamponner → enregistrer → distribuer, puis suivre et classer." },
+  { q:"Juste après le tri, quelle étape vient ensuite ?", o:["Ouvrir les plis et vérifier les pièces jointes","Distribuer aux destinataires","Enregistrer au registre arrivée"], a:[0], e:"Après le tri, on ouvre (sauf « Personnel / Confidentiel ») et on vérifie les pièces jointes. Ensuite seulement : tamponner, enregistrer, distribuer." },
+  { q:"Où tamponne-t-on la date d'arrivée ?", o:["Sur le document lui-même","Sur l'enveloppe","Uniquement dans le registre arrivée"], a:[0], e:"Sur le document : l'enveloppe est souvent jetée. Le tampon prouve la date de réception et assure la traçabilité." },
+  { q:"Vrai ou faux : une même bannette peut recevoir le courrier « à signer » et le courrier « à classer ».", o:["Vrai","Faux"], a:[1], e:"Faux : une bannette = une étape. On ne mélange jamais, sinon un document à signer peut finir classé… et oublié." },
+  { q:"SOLÉA Services résilie un contrat et veut une preuve de l'envoi ET de la réception. Quel mode d'envoi ?", o:["Lettre recommandée avec accusé de réception (AR)","Lettre suivie","Lettre verte"], a:[0], e:"Le recommandé avec AR prouve le dépôt et la réception (avis signé). La lettre suivie prouve seulement la distribution." },
+  { q:"Que note-t-on dans le registre arrivée ?", multi:true, o:["Le numéro d'ordre","La date d'arrivée","L'expéditeur","L'objet","Le destinataire interne","La couleur de l'enveloppe"], a:[0,1,2,3,4], e:"N° d'ordre, date, expéditeur, objet, destinataire interne (et la suite donnée). La couleur de l'enveloppe n'a aucun intérêt !" },
+ ]},
+ { nom: "Nommer ses documents", questions: [
+  { q:"Quel nom de fichier respecte la règle AAAAMMJJ_CODE_Tiers_Objet ?", o:["20261026_FAC_AlizeImmo_Loyer-octobre.pdf","facture alizé octobre FINAL.pdf","26-10-2026 FAC Alizé loyer.pdf"], a:[0], e:"Date à l'envers (année d'abord), code du document, tiers, objet. Ni espace, ni accent, ni « final »." },
+  { q:"Pourquoi écrit-on la date sous la forme AAAAMMJJ au début du nom ?", o:["Pour que l'ordinateur range automatiquement les fichiers dans l'ordre chronologique","Parce que c'est plus joli","Pour savoir qui a créé le fichier"], a:[0], e:"Année, puis mois, puis jour : le tri alphabétique de l'ordinateur devient un tri par date." },
+  { q:"Que veut dire le code DEV ?", o:["Devis","Développement","Dévolution"], a:[0], e:"DEV = devis." },
+  { q:"Que veut dire le code BL ?", o:["Bon de livraison","Bilan","Bulletin de liaison"], a:[0], e:"BL = bon de livraison." },
+  { q:"Que veut dire le code ODJ ?", o:["Ordre du jour","Ordre de jonction","Objet du jour"], a:[0], e:"ODJ = ordre du jour (d'une réunion)." },
+  { q:"Que veut dire le code NDF ?", o:["Note de frais","Nom de fichier","Note de fin"], a:[0], e:"NDF = note de frais." },
+ ]},
+ { nom: "Classer et archiver", questions: [
+  { q:"Les dossiers clients sont rangés selon le nom de famille du client. Quel mode de classement ?", o:["Alphabétique","Numérique","Chronologique","Thématique","Géographique"], a:[0], e:"Alphabétique : on cherche à partir d'un nom (personne, entreprise, ville)." },
+  { q:"Les factures sont rangées selon leur numéro (F-2026-001, F-2026-002…). Quel mode de classement ?", o:["Numérique","Alphabétique","Géographique","Thématique","Chronologique"], a:[0], e:"Numérique : on cherche à partir d'un numéro attribué (facture, dossier, client)." },
+  { q:"Les copies des courriers envoyés sont rangées par date, la plus récente sur le dessus (le « chrono »). Quel mode de classement ?", o:["Chronologique","Numérique","Alphabétique","Thématique","Géographique"], a:[0], e:"Chronologique : selon la date, le document le plus récent est placé sur le dessus." },
+  { q:"Les procédures internes sont rangées par sujet : accueil, courrier, sécurité, informatique… Quel mode de classement ?", o:["Thématique (ou idéologique)","Alphabétique","Chronologique","Numérique","Géographique"], a:[0], e:"Thématique : on cherche à partir du contenu, du sujet. On construit d'abord un plan de classement en thèmes et sous-thèmes." },
+  { q:"Une entreprise range les dossiers de ses agences : Basse-Terre, Pointe-à-Pitre, Saint-Martin… Quel mode de classement est le plus logique ?", o:["Géographique","Chronologique","Numérique","Thématique","Alphabétique"], a:[0], e:"Géographique : on cherche à partir d'un lieu (agence, secteur commercial)." },
+  { q:"Des documents consultés seulement de temps en temps, rangés dans un local de stockage ou sur le serveur, relèvent du…", o:["Classement semi-actif","Classement actif","Archives"], a:[0], e:"Actif = utilisé régulièrement (au bureau). Semi-actif = consulté occasionnellement. Archives = documents « dormants » à conserver." },
+  { q:"Un collègue a besoin d'un dossier rangé dans une boîte d'archives. Que faites-vous ?", o:["Je fais remplir une demande de consultation (demandeur, document, dates de sortie et de retour)","Je lui donne la boîte, il la rapportera","Je photocopie tout le contenu de la boîte"], a:[0], e:"La demande de consultation garde la trace de qui a sorti quel document, et quand il doit revenir : rien ne se perd." },
+  { q:"Qu'écrit-on sur l'étiquette d'une boîte d'archives ?", multi:true, o:["Le service","Le contenu","Les années concernées","Le prix de la boîte","Le prénom de la personne qui l'a montée"], a:[0,1,2], e:"Service, contenu, années : de quoi retrouver la bonne boîte sans tout ouvrir. Les boîtes sont ensuite rangées par thème ou code, puis par année." },
+  { q:"Vrai ou faux : on peut garder les données personnelles des clients aussi longtemps qu'on veut, « au cas où ».", o:["Vrai","Faux"], a:[1], e:"Faux (RGPD) : les documents contenant des données personnelles ne sont pas conservés plus longtemps que nécessaire. Ensuite, ils sont détruits ou anonymisés." },
+  { q:"Vrai ou faux : après avoir numérisé un courrier, on détruit toujours l'original papier.", o:["Vrai","Faux"], a:[1], e:"Faux : cela dépend de la procédure de l'entreprise. Certains originaux doivent être conservés (contrats, recommandés…)." },
+ ]},
+ { nom: "Question bonus", bonus:true, questions: [
+  { q:"Une lettre part dans une enveloppe à fenêtre. Où place-t-on l'adresse du destinataire sur la feuille ?", o:["En haut à droite, à environ 11 cm du bord gauche et 5 cm du haut","En haut à gauche, sous le logo","Au milieu de la page, au-dessus du texte"], a:[0], e:"Calée en haut à droite, l'adresse apparaît dans la fenêtre de l'enveloppe. C'est le sujet de la suite de la journée !" },
+ ]},
+];
+
+const melange = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const app = document.getElementById('app');
+let prenom = '', liste = [], idx = 0, resultats = [];
+
+function accueil() {
+  const total = MANCHES.reduce((s, m) => s + m.questions.length, 0);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bienvenue !</p>
+    <p>${total} questions en ${MANCHES.length - 1} manches, plus une question bonus. Après chaque réponse, une explication s'affiche. À la fin, vous verrez votre niveau par manche et la liste des points à revoir.</p>
+    <p><label for="p"><b>Votre prénom :</b></label></p>
+    <input type="text" id="p" placeholder="Prénom" autocomplete="off">
+    <button class="btn vert" id="go">Commencer</button></div>`;
+  document.getElementById('go').onclick = () => { prenom = document.getElementById('p').value.trim() || 'Stagiaire'; demarrer(); };
+}
+
+function demarrer() {
+  liste = []; resultats = []; idx = 0;
+  MANCHES.forEach((m, mi) => m.questions.forEach(q => {
+    const ordre = melange(q.o.map((_, i) => i));
+    liste.push({ ...q, manche: mi, ordre });
+  }));
+  afficher();
+}
+
+function afficher() {
+  const q = liste[idx], m = MANCHES[q.manche];
+  const pct = Math.round(idx / liste.length * 100);
+  app.innerHTML = `<div class="carte">
+    <div class="manche">${m.bonus ? '★ ' : 'Manche ' + (q.manche + 1) + ' · '}${m.nom}</div>
+    <div class="progression"><div style="width:${pct}%"></div></div>
+    <div class="question">${idx + 1}. ${q.q}</div>
+    <div class="consigne">${q.multi ? 'Plusieurs réponses possibles : cochez toutes les bonnes, puis validez.' : 'Une seule bonne réponse.'}</div>
+    <div id="choix">${q.ordre.map(i => `<button class="choix" data-i="${i}">${q.o[i]}</button>`).join('')}</div>
+    ${q.multi ? '<button class="btn" id="valider" disabled>Valider</button>' : ''}
+    <div id="retour"></div></div>`;
+  const boutons = [...document.querySelectorAll('.choix')];
+  if (q.multi) {
+    const sel = new Set();
+    boutons.forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); b.classList.toggle('coche'); document.getElementById('valider').disabled = sel.size === 0; });
+    document.getElementById('valider').onclick = () => corriger([...sel]);
+  } else boutons.forEach(b => b.onclick = () => corriger([+b.dataset.i]));
+}
+
+function corriger(rep) {
+  const q = liste[idx];
+  const ok = rep.length === q.a.length && rep.every(r => q.a.includes(r));
+  resultats.push({ manche: q.manche, ok, q: q.q, e: q.e });
+  document.querySelectorAll('.choix').forEach(b => {
+    const i = +b.dataset.i; b.disabled = true; b.classList.remove('coche');
+    if (q.a.includes(i)) b.classList.add('bon'); else if (rep.includes(i)) b.classList.add('faux');
+  });
+  const v = document.getElementById('valider'); if (v) v.remove();
+  document.getElementById('retour').innerHTML = `<div class="retour ${ok ? 'ok' : 'ko'}"><b>${ok ? 'Bonne réponse !' : 'Pas tout à fait.'}</b> ${q.e}</div>
+    <button class="btn vert" id="suite">${idx < liste.length - 1 ? 'Question suivante' : 'Voir mon résultat'}</button>`;
+  document.getElementById('suite').onclick = () => { idx++; idx < liste.length ? afficher() : bilan(); };
+  document.getElementById('suite').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function niveau(p) { return p >= 80 ? '<span class="niv acquis">Acquis</span>' : p >= 50 ? '<span class="niv encours">En cours</span>' : '<span class="niv revoir">À revoir</span>'; }
+
+function bilan() {
+  const notes = resultats.filter(r => !MANCHES[r.manche].bonus);
+  const bons = notes.filter(r => r.ok).length;
+  const bonus = resultats.find(r => MANCHES[r.manche].bonus);
+  const lignes = MANCHES.map((m, mi) => {
+    if (m.bonus) return '';
+    const rs = resultats.filter(r => r.manche === mi), b = rs.filter(r => r.ok).length, p = Math.round(b / rs.length * 100);
+    return `<tr><td>${m.nom}</td><td>${b} / ${rs.length}</td><td>${niveau(p)}</td></tr>`;
+  }).join('');
+  const erreurs = notes.filter(r => !r.ok);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bravo ${prenom} !</p>
+    <div class="score">${bons} / ${notes.length}</div>
+    <p style="text-align:center">${bonus && bonus.ok ? '★ Question bonus réussie !' : 'Question bonus : à découvrir dans la suite de la journée.'}</p>
+    <table><tr><th>Manche</th><th>Score</th><th>Niveau</th></tr>${lignes}</table>
+    <p style="font-size:.85rem;color:#666">Acquis : 80 % et plus · En cours : 50 à 79 % · À revoir : moins de 50 %</p></div>
+    <div class="carte"><p class="question">À revoir</p>
+    ${erreurs.length ? '<ul class="arevoir">' + erreurs.map(r => `<li><b>${r.q}</b><br>${r.e}</li>`).join('') + '</ul>' : '<p>Aucune erreur : tout est acquis !</p>'}
+    <button class="btn" id="rejouer">Rejouer</button></div>`;
+  document.getElementById('rejouer').onclick = demarrer;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+accueil();
+</script>
+</body>
+</html>
