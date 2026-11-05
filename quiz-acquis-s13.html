@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – CADGA session 13</title>
+<style>
+  :root { --vert:#45967C; --bleu:#247091; --violet:#484596; --rouge:#C00000; --fond:#F4F7F8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Calibri, "Segoe UI", Arial, sans-serif; background:var(--fond); color:#222; }
+  header { background:var(--vert); color:#fff; text-align:center; padding:18px 12px; border-radius:0 0 14px 14px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+  header h1 { margin:0; font-size:1.5rem; }
+  header p { margin:4px 0 0; font-style:italic; font-size:.92rem; }
+  main { max-width:720px; margin:18px auto; padding:0 12px 40px; }
+  .carte { background:#fff; border-left:6px solid var(--bleu); border-radius:12px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:16px; }
+  .manche { color:var(--violet); font-weight:bold; font-size:.95rem; text-transform:uppercase; letter-spacing:.03em; }
+  .progression { height:8px; background:#e3e8ea; border-radius:4px; overflow:hidden; margin:8px 0 14px; }
+  .progression div { height:100%; background:var(--vert); transition:width .3s; }
+  .question { font-size:1.15rem; font-weight:bold; margin:6px 0 4px; }
+  .consigne { font-size:.88rem; font-style:italic; color:#666; margin-bottom:12px; }
+  .choix { display:block; width:100%; text-align:left; padding:12px 14px; margin:8px 0; border:2px solid #d5dde0; border-radius:10px; background:#fff; font-size:1rem; cursor:pointer; font-family:inherit; }
+  .choix:hover:not(:disabled) { border-color:var(--bleu); background:#f0f6f9; }
+  .choix.coche { border-color:var(--bleu); background:#e6f0f5; }
+  .choix.bon { border-color:var(--vert); background:#e3f3ec; font-weight:bold; }
+  .choix.faux { border-color:var(--rouge); background:#fbe9e9; }
+  .choix:disabled { cursor:default; }
+  .btn { display:inline-block; background:var(--violet); color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:1rem; font-family:inherit; cursor:pointer; margin-top:10px; }
+  .btn:disabled { background:#aaa; cursor:default; }
+  .btn.vert { background:var(--vert); }
+  .retour { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:.97rem; }
+  .retour.ok { background:#e3f3ec; border-left:5px solid var(--vert); }
+  .retour.ko { background:#fbe9e9; border-left:5px solid var(--rouge); }
+  input[type=text] { width:100%; padding:12px; font-size:1rem; border:2px solid #d5dde0; border-radius:10px; font-family:inherit; }
+  .score { font-size:2.4rem; font-weight:bold; color:var(--violet); text-align:center; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; }
+  th { background:var(--bleu); color:#fff; padding:8px; text-align:left; }
+  td { padding:8px; border-bottom:1px solid #e3e8ea; }
+  .niv { font-weight:bold; border-radius:6px; padding:3px 8px; font-size:.85rem; white-space:nowrap; }
+  .acquis { background:#e3f3ec; color:#2d6b57; } .encours { background:#fff4d6; color:#8a6400; } .revoir { background:#fbe9e9; color:var(--rouge); }
+  .arevoir li { margin-bottom:8px; }
+
+  .visuel { margin:10px 0 14px; display:flex; justify-content:center; }
+  .lettre { position:relative; width:100%; max-width:430px; aspect-ratio:1/1.4; background:#fff; border:1px solid #cfd8dc; border-radius:4px; box-shadow:0 3px 10px rgba(0,0,0,.12); font-size:.7rem; color:#555; }
+  .zone { position:absolute; border:2px dashed var(--bleu); border-radius:6px; background:rgba(36,112,145,.06); padding:3px 5px; line-height:1.25; }
+  .zone .num { position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-radius:50%; background:var(--violet); color:#fff; font-weight:bold; font-size:.75rem; display:flex; align-items:center; justify-content:center; }
+  .ligne { height:4px; background:#d9e1e4; border-radius:2px; margin:4px 0; }
+  .extrait { width:100%; background:#fff; border:1px solid #cfd8dc; border-left:5px solid var(--bleu); border-radius:6px; padding:14px 16px; font-family:Georgia, "Times New Roman", serif; font-size:.98rem; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .extrait .sign { margin-top:10px; text-align:right; }
+  .explorateur { width:100%; background:#fff; border:1px solid #cfd8dc; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); font-family:"Segoe UI", Arial, sans-serif; font-size:.9rem; }
+  .explorateur .barre { background:#e9eef0; padding:6px 10px; font-size:.8rem; color:#555; border-bottom:1px solid #cfd8dc; }
+  .explorateur div.el { padding:5px 10px; border-bottom:1px solid #f0f3f4; }
+  .explorateur .fichier { color:var(--bleu); font-weight:bold; background:#fff8e1; }
+  .partage { width:100%; max-width:380px; background:#fff; border:1px solid #cfd8dc; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,.15); font-family:"Segoe UI", Arial, sans-serif; overflow:hidden; }
+  .partage .titre { background:#0f6cbd; color:#fff; padding:8px 12px; font-weight:bold; font-size:.95rem; }
+  .partage .corps { padding:12px; font-size:.9rem; }
+  .partage .opt { border:1px solid #cfd8dc; border-radius:6px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:8px; }
+  .partage .rouge { color:var(--rouge); font-weight:bold; white-space:nowrap; }
+  .choix code, .extrait code, .retour code { font-family:Consolas, monospace; font-size:.92rem; }
+  .bloc { font-family:Georgia, serif; line-height:1.35; }
+  footer { text-align:center; font-size:.75rem; color:#777; padding:10px; border-top:1px solid var(--vert); max-width:720px; margin:0 auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quiz des acquis</h1>
+  <p>CADGA · CP3-CP4 · Lettre normalisée, courrier au départ, nommage et dossiers partagés</p>
+</header>
+<main id="app"></main>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S12</footer>
+
+<script>
+const LETTRE = `<div class="lettre"><div class="zone" style="left:5%;top:4%;width:38%;height:14%"><span class="num">1</span><b style="color:#45967C">MAJESTIC Services</b><br>12, rue Jean-Jaurès<br>97122 Baie-Mahault</div><div class="zone" style="left:52%;top:20%;width:42%;height:12%"><span class="num">2</span>Madame Rose JEAN-BAPTISTE<br>8, allée des Flamboyants<br>97110 Pointe-à-Pitre</div><div class="zone" style="left:52%;top:35%;width:42%;height:6%"><span class="num">3</span>Baie-Mahault, le 5 novembre 2026</div><div class="zone" style="left:5%;top:44%;width:60%;height:5%"><span class="num">4</span><b>Objet :</b> votre demande de domiciliation</div><div class="zone" style="left:5%;top:52%;width:89%;height:28%"><span class="num">5</span>Madame,<div class="ligne" style="width:90%"></div><div class="ligne" style="width:75%"></div><div class="ligne" style="width:90%"></div><div class="ligne" style="width:75%"></div><div class="ligne" style="width:90%"></div><div class="ligne" style="width:75%"></div></div><div class="zone" style="left:52%;top:84%;width:42%;height:11%"><span class="num">6</span>Josiane LAGUERRE<br>Gérante</div></div>`;
+const MANCHES = [
+ { nom: "La lettre normalisée", questions: [
+  { v:LETTRE, fixe:true, q:"Sur cette lettre, quelle zone contient l'adresse du destinataire ?", o:["Zone 1","Zone 2","Zone 3","Zone 6"], a:[1], e:"Zone 2 : l'adresse du destinataire est en haut à droite (calée à environ 11 cm du bord gauche), pour apparaître dans la fenêtre de l'enveloppe. La zone 1, c'est l'expéditeur." },
+  { v:LETTRE, fixe:true, q:"Toujours sur cette lettre : où se trouvent le lieu et la date ?", o:["Zone 1","Zone 3","Zone 4","Zone 6"], a:[1], e:"Zone 3 : le lieu et la date, à droite, sous l'adresse du destinataire. « Baie-Mahault, le 5 novembre 2026 » : le lieu, une virgule, puis la date." },
+  { q:"Dans quel ordre trouve-t-on ces éléments, de haut en bas ?", o:["Objet → Formule d'appel → Corps de la lettre → Formule de politesse → Signature","Formule d'appel → Objet → Corps de la lettre → Signature → Formule de politesse","Objet → Corps de la lettre → Formule d'appel → Formule de politesse → Signature"], a:[0], e:"L'objet annonce le sujet, l'appel (« Madame, ») ouvre la lettre, puis viennent le corps, la formule de politesse et enfin la signature." },
+  { q:"La formule d'appel est « Madame, ». Quelle formule de politesse est correcte ?", o:["Je vous prie d'agréer, Madame, l'expression de mes salutations distinguées.","Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.","Bien à vous, Madame."], a:[0], e:"La formule de politesse reprend exactement la formule d'appel, entre deux virgules : « Madame, » au début → « …agréer, Madame, … » à la fin." },
+  { q:"Quelle ligne d'objet est correcte ?", o:["<b>Objet :</b> demande de devis pour l'entretien des climatiseurs","<b>OBJET :</b> devis.","<b>Objet :</b> je vous écris pour vous demander un devis car nos climatiseurs ne marchent plus."], a:[0], e:"L'objet est court, précis, sans verbe conjugué et sans point final. « devis. » est trop vague, la troisième est une phrase entière." },
+  { q:"En bas d'une lettre, que signifie la mention « P.J. » ?", o:["Pièce(s) jointe(s)","Pour justification","Prochaine journée"], a:[0], e:"P.J. = pièce(s) jointe(s) : on liste les documents glissés dans l'enveloppe avec la lettre." },
+ ]},
+ { nom: "Le courrier mal rédigé", questions: [
+  { v:'<div class="extrait">Nous accusons reception de votre courier du 12 octobre 2026 .</div>', multi:true, q:"Cette phrase contient des erreurs. Lesquelles ?", o:["« reception » sans accent","« courier » avec un seul r","Un espace avant le point final","La date est mal écrite"], a:[0,1,2], e:"Il faut écrire « réception », « courrier » (deux r) et coller le point au dernier mot. La date, elle, est correcte." },
+  { v:'<div class="extrait">Dans l\'attente de votre réponse, je vous prie d\'agréer, Monsieur, l\'expression de mes salutations distinguées.<div class="sign">Bisous,<br>Sandra</div></div>', multi:true, q:"Qu'est-ce qui ne va pas dans cette fin de lettre ?", o:["« Bisous » : ce n'est pas professionnel","Le prénom seul ne suffit pas : il faut Prénom NOM et la fonction","La formule de politesse est fautive"], a:[0,1], e:"La formule de politesse est correcte. Mais on ne termine jamais par « Bisous », et le bloc signature comporte le prénom, le NOM en majuscules et la fonction." },
+  { q:"Vous écrivez à Mme Jean-Baptiste, une cliente. Quelle formule d'appel choisissez-vous ?", o:["Madame,","Bonjour Madame Jean-Baptiste,","Chère Mme Jean-Baptiste,"], a:[0], e:"Dans une lettre, on écrit simplement « Madame, », sans le nom de famille et sans « Bonjour »." },
+  { q:"Quelle phrase de conclusion convient à une lettre professionnelle ?", o:["Je reste à votre disposition pour tout renseignement complémentaire.","Voilà, c'est tout pour aujourd'hui.","Répondez-moi vite SVP !!"], a:[0], e:"La conclusion ouvre sur la suite (disponibilité, attente d'une réponse) avec un ton courtois, sans abréviation ni ponctuation excessive." },
+  { q:"Quel bloc signature est correct ?", o:['<div class="bloc">Sandra CÉLESTINE<br>Assistante d\'accueil</div>','<div class="bloc">Assistante d\'accueil<br>sandra célestine</div>','<div class="bloc">S. C.</div>'], a:[0], e:"Le prénom, puis le NOM en majuscules, puis la fonction en dessous. La signature manuscrite se place entre la formule de politesse et le nom." },
+  { q:"Vrai ou faux : « Cordialement » suffit pour terminer une lettre de résiliation de contrat.", o:["Vrai","Faux"], a:[1], e:"Faux : « Cordialement » convient aux mails et aux échanges courants. Une lettre officielle demande une vraie formule de politesse (« Je vous prie d'agréer… »)." },
+ ]},
+ { nom: "Nommer et classer", questions: [
+  { v:'<div class="explorateur"><div class="barre">📁 Mes documents › ALIZE_IMMOBILIER</div><div class="el">📁 00_A_CLASSER</div><div class="el">📁 01_ADMINISTRATIF</div><div class="el">📁 02_LOCATION</div><div class="el">📁 03_VENTE</div><div class="el">📁 04_FOURNISSEURS</div><div class="el fichier">📄 20261029_DEV_KaruPlomberie_Fuite-cuisine.pdf</div></div>', fixe:true, q:"Dans quel dossier rangez-vous ce devis ?", o:["01_ADMINISTRATIF","02_LOCATION","03_VENTE","04_FOURNISSEURS"], a:[3], e:"DEV = devis, KaruPlomberie = le tiers : c'est un fournisseur. Le nom du fichier vous dit déjà où le ranger !" },
+  { q:"Quel fichier est correctement nommé ?", o:["<code>20261029_CR_Equipe_Reunion-mensuelle.docx</code>","<code>CR réunion 29 oct FINAL.docx</code>","<code>29102026_CR_Equipe.docx</code>","<code>20261029 CR Équipe réunion.docx</code>"], a:[0], e:"Date à l'envers, code, tiers, objet, séparés par des tirets bas. Ni espace, ni accent, ni « FINAL »." },
+  { v:'<div class="extrait" style="font-family:Consolas,monospace">20261029_FAC_Loyer-octobre.pdf</div>', q:"Que manque-t-il dans ce nom de fichier ?", o:["Le tiers (à qui ou de qui est la facture)","La date","Le code du document","L'extension"], a:[0], e:"AAAAMMJJ_CODE_<b>Tiers</b>_Objet : il manque le tiers, par exemple <code>20261029_FAC_Nelson_Loyer-octobre.pdf</code>." },
+  { q:"Vous trouvez la copie de la pièce d'identité d'un client dans le dossier commun. Que faites-vous ?", o:["Je la déplace dans un dossier à accès restreint et je préviens mon responsable","Je la laisse : tout le monde est de la maison","Je la renomme pour qu'on la retrouve plus vite"], a:[0], e:"RGPD : les données personnelles ne sont accessibles qu'aux personnes qui en ont besoin. On les range dans un dossier à accès restreint." },
+ ]},
+ { nom: "Question bonus", bonus:true, questions: [
+  { v:'<div class="partage"><div class="titre">Partager « Bail_JeanBaptiste »</div><div class="corps">Envoyer le lien à : <b>r.jeanbaptiste@mail.fr</b><div class="opt"><span>🔗 Toute personne disposant du lien</span><span class="rouge">Peut modifier ▾</span></div></div></div>', q:"Vous envoyez ce lien à la cliente pour qu'elle relise son bail. Que faut-il changer ?", o:["Mettre « Peut afficher » : elle doit lire, pas modifier","Rien, c'est parfait","Supprimer l'adresse mail"], a:[0], e:"« Peut modifier » permet de changer ou de supprimer le document. Pour une simple lecture, on choisit « Peut afficher »." },
+ ]},
+];
+
+const melange = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const app = document.getElementById('app');
+let prenom = '', liste = [], idx = 0, resultats = [];
+
+function accueil() {
+  const total = MANCHES.reduce((s, m) => s + m.questions.length, 0);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bienvenue !</p>
+    <p>${total} questions en ${MANCHES.length - 1} manches, plus une question bonus. Après chaque réponse, une explication s'affiche. À la fin, vous verrez votre niveau par manche et la liste des points à revoir.</p>
+    <p><label for="p"><b>Votre prénom :</b></label></p>
+    <input type="text" id="p" placeholder="Prénom" autocomplete="off">
+    <button class="btn vert" id="go">Commencer</button></div>`;
+  document.getElementById('go').onclick = () => { prenom = document.getElementById('p').value.trim() || 'Stagiaire'; demarrer(); };
+}
+
+function demarrer() {
+  liste = []; resultats = []; idx = 0;
+  MANCHES.forEach((m, mi) => m.questions.forEach(q => {
+    const ordre = q.fixe ? q.o.map((_, i) => i) : melange(q.o.map((_, i) => i));
+    liste.push({ ...q, manche: mi, ordre });
+  }));
+  afficher();
+}
+
+function afficher() {
+  const q = liste[idx], m = MANCHES[q.manche];
+  const pct = Math.round(idx / liste.length * 100);
+  app.innerHTML = `<div class="carte">
+    <div class="manche">${m.bonus ? '★ ' : 'Manche ' + (q.manche + 1) + ' · '}${m.nom}</div>
+    <div class="progression"><div style="width:${pct}%"></div></div>
+    <div class="question">${idx + 1}. ${q.q}</div>
+    ${q.v ? `<div class="visuel">${q.v}</div>` : ''}
+    <div class="consigne">${q.multi ? 'Plusieurs réponses possibles : cochez toutes les bonnes, puis validez.' : 'Une seule bonne réponse.'}</div>
+    <div id="choix">${q.ordre.map(i => `<button class="choix" data-i="${i}">${q.o[i]}</button>`).join('')}</div>
+    ${q.multi ? '<button class="btn" id="valider" disabled>Valider</button>' : ''}
+    <div id="retour"></div></div>`;
+  const boutons = [...document.querySelectorAll('.choix')];
+  if (q.multi) {
+    const sel = new Set();
+    boutons.forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); b.classList.toggle('coche'); document.getElementById('valider').disabled = sel.size === 0; });
+    document.getElementById('valider').onclick = () => corriger([...sel]);
+  } else boutons.forEach(b => b.onclick = () => corriger([+b.dataset.i]));
+}
+
+function corriger(rep) {
+  const q = liste[idx];
+  const ok = rep.length === q.a.length && rep.every(r => q.a.includes(r));
+  resultats.push({ manche: q.manche, ok, q: q.q, e: q.e });
+  document.querySelectorAll('.choix').forEach(b => {
+    const i = +b.dataset.i; b.disabled = true; b.classList.remove('coche');
+    if (q.a.includes(i)) b.classList.add('bon'); else if (rep.includes(i)) b.classList.add('faux');
+  });
+  const v = document.getElementById('valider'); if (v) v.remove();
+  document.getElementById('retour').innerHTML = `<div class="retour ${ok ? 'ok' : 'ko'}"><b>${ok ? 'Bonne réponse !' : 'Pas tout à fait.'}</b> ${q.e}</div>
+    <button class="btn vert" id="suite">${idx < liste.length - 1 ? 'Question suivante' : 'Voir mon résultat'}</button>`;
+  document.getElementById('suite').onclick = () => { idx++; idx < liste.length ? afficher() : bilan(); };
+  document.getElementById('suite').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function niveau(p) { return p >= 80 ? '<span class="niv acquis">Acquis</span>' : p >= 50 ? '<span class="niv encours">En cours</span>' : '<span class="niv revoir">À revoir</span>'; }
+
+function bilan() {
+  const notes = resultats.filter(r => !MANCHES[r.manche].bonus);
+  const bons = notes.filter(r => r.ok).length;
+  const bonus = resultats.find(r => MANCHES[r.manche].bonus);
+  const lignes = MANCHES.map((m, mi) => {
+    if (m.bonus) return '';
+    const rs = resultats.filter(r => r.manche === mi), b = rs.filter(r => r.ok).length, p = Math.round(b / rs.length * 100);
+    return `<tr><td>${m.nom}</td><td>${b} / ${rs.length}</td><td>${niveau(p)}</td></tr>`;
+  }).join('');
+  const erreurs = notes.filter(r => !r.ok);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bravo ${prenom} !</p>
+    <div class="score">${bons} / ${notes.length}</div>
+    <p style="text-align:center">${bonus && bonus.ok ? '★ Question bonus réussie !' : 'Question bonus : on en reparle à la correction.'}</p>
+    <table><tr><th>Manche</th><th>Score</th><th>Niveau</th></tr>${lignes}</table>
+    <p style="font-size:.85rem;color:#666">Acquis : 80 % et plus · En cours : 50 à 79 % · À revoir : moins de 50 %</p></div>
+    <div class="carte"><p class="question">À revoir</p>
+    ${erreurs.length ? '<ul class="arevoir">' + erreurs.map(r => `<li><b>${r.q}</b><br>${r.e}</li>`).join('') + '</ul>' : '<p>Aucune erreur : tout est acquis !</p>'}
+    <button class="btn" id="rejouer">Rejouer</button></div>`;
+  document.getElementById('rejouer').onclick = demarrer;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+accueil();
+</script>
+</body>
+</html>
