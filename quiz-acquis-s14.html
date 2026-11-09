@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – CADGA session 14</title>
+<style>
+  :root { --vert:#45967C; --bleu:#247091; --violet:#484596; --rouge:#C00000; --fond:#F4F7F8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Calibri, "Segoe UI", Arial, sans-serif; background:var(--fond); color:#222; }
+  header { background:var(--vert); color:#fff; text-align:center; padding:18px 12px; border-radius:0 0 14px 14px; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+  header h1 { margin:0; font-size:1.5rem; }
+  header p { margin:4px 0 0; font-style:italic; font-size:.92rem; }
+  main { max-width:720px; margin:18px auto; padding:0 12px 40px; }
+  .carte { background:#fff; border-left:6px solid var(--bleu); border-radius:12px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:16px; }
+  .manche { color:var(--violet); font-weight:bold; font-size:.95rem; text-transform:uppercase; letter-spacing:.03em; }
+  .progression { height:8px; background:#e3e8ea; border-radius:4px; overflow:hidden; margin:8px 0 14px; }
+  .progression div { height:100%; background:var(--vert); transition:width .3s; }
+  .question { font-size:1.15rem; font-weight:bold; margin:6px 0 4px; }
+  .consigne { font-size:.88rem; font-style:italic; color:#666; margin-bottom:12px; }
+  .choix { display:block; width:100%; text-align:left; padding:12px 14px; margin:8px 0; border:2px solid #d5dde0; border-radius:10px; background:#fff; font-size:1rem; cursor:pointer; font-family:inherit; }
+  .choix:hover:not(:disabled) { border-color:var(--bleu); background:#f0f6f9; }
+  .choix.coche { border-color:var(--bleu); background:#e6f0f5; }
+  .choix.bon { border-color:var(--vert); background:#e3f3ec; font-weight:bold; }
+  .choix.faux { border-color:var(--rouge); background:#fbe9e9; }
+  .choix:disabled { cursor:default; }
+  .btn { display:inline-block; background:var(--violet); color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:1rem; font-family:inherit; cursor:pointer; margin-top:10px; }
+  .btn:disabled { background:#aaa; cursor:default; }
+  .btn.vert { background:var(--vert); }
+  .retour { margin-top:14px; padding:12px 14px; border-radius:10px; font-size:.97rem; }
+  .retour.ok { background:#e3f3ec; border-left:5px solid var(--vert); }
+  .retour.ko { background:#fbe9e9; border-left:5px solid var(--rouge); }
+  input[type=text] { width:100%; padding:12px; font-size:1rem; border:2px solid #d5dde0; border-radius:10px; font-family:inherit; }
+  .score { font-size:2.4rem; font-weight:bold; color:var(--violet); text-align:center; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; }
+  th { background:var(--bleu); color:#fff; padding:8px; text-align:left; }
+  td { padding:8px; border-bottom:1px solid #e3e8ea; }
+  .niv { font-weight:bold; border-radius:6px; padding:3px 8px; font-size:.85rem; white-space:nowrap; }
+  .acquis { background:#e3f3ec; color:#2d6b57; } .encours { background:#fff4d6; color:#8a6400; } .revoir { background:#fbe9e9; color:var(--rouge); }
+  .arevoir li { margin-bottom:8px; }
+
+  .visuel { margin:10px 0 14px; display:flex; justify-content:center; }
+  .lettre { position:relative; width:100%; max-width:430px; aspect-ratio:1/1.4; background:#fff; border:1px solid #cfd8dc; border-radius:4px; box-shadow:0 3px 10px rgba(0,0,0,.12); font-size:.7rem; color:#555; }
+  .zone { position:absolute; border:2px dashed var(--bleu); border-radius:6px; background:rgba(36,112,145,.06); padding:3px 5px; line-height:1.25; }
+  .zone .num { position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-radius:50%; background:var(--violet); color:#fff; font-weight:bold; font-size:.75rem; display:flex; align-items:center; justify-content:center; }
+  .ligne { height:4px; background:#d9e1e4; border-radius:2px; margin:4px 0; }
+  .extrait { width:100%; background:#fff; border:1px solid #cfd8dc; border-left:5px solid var(--bleu); border-radius:6px; padding:14px 16px; font-family:Georgia, "Times New Roman", serif; font-size:.98rem; line-height:1.5; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+  .extrait .sign { margin-top:10px; text-align:right; }
+  .explorateur { width:100%; background:#fff; border:1px solid #cfd8dc; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.08); font-family:"Segoe UI", Arial, sans-serif; font-size:.9rem; }
+  .explorateur .barre { background:#e9eef0; padding:6px 10px; font-size:.8rem; color:#555; border-bottom:1px solid #cfd8dc; }
+  .explorateur div.el { padding:5px 10px; border-bottom:1px solid #f0f3f4; }
+  .explorateur .fichier { color:var(--bleu); font-weight:bold; background:#fff8e1; }
+  .partage { width:100%; max-width:380px; background:#fff; border:1px solid #cfd8dc; border-radius:10px; box-shadow:0 4px 14px rgba(0,0,0,.15); font-family:"Segoe UI", Arial, sans-serif; overflow:hidden; }
+  .partage .titre { background:#0f6cbd; color:#fff; padding:8px 12px; font-weight:bold; font-size:.95rem; }
+  .partage .corps { padding:12px; font-size:.9rem; }
+  .partage .opt { border:1px solid #cfd8dc; border-radius:6px; padding:8px 10px; margin:6px 0; display:flex; justify-content:space-between; gap:8px; }
+  .partage .rouge { color:var(--rouge); font-weight:bold; white-space:nowrap; }
+  .choix code, .extrait code, .retour code { font-family:Consolas, monospace; font-size:.92rem; }
+  .bloc { font-family:Georgia, serif; line-height:1.35; }
+  footer { text-align:center; font-size:.75rem; color:#777; padding:10px; border-top:1px solid var(--vert); max-width:720px; margin:0 auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quiz des acquis</h1>
+  <p>CADGA · CP3-CP4 · Courriers au départ et différents écrits de l'entreprise</p>
+</header>
+<main id="app"></main>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S13 et introduction</footer>
+
+<script>
+const NOTE = `<div class="extrait" style="font-family:Calibri,Arial,sans-serif;font-size:.92rem"><div style="display:flex;justify-content:space-between"><b style="color:#45967C">MAJESTIC Services</b><span>Baie-Mahault, le 9 novembre 2026</span></div><div style="text-align:center;font-weight:bold;letter-spacing:.05em;margin:10px 0;color:#484596">NOTE N° 2026-14</div><div><b>De :</b> Josiane LAGUERRE, Gérante<br><b>À :</b> l'ensemble du personnel<br><b>Objet :</b> horaires d'ouverture de l'accueil</div><p style="margin:10px 0 0">À compter du lundi 16 novembre 2026, l'accueil ouvrira à 7h30. Chaque chargé(e) d'accueil <u>devra</u> être à son poste à 7h25.</p><div class="sign">J. LAGUERRE</div></div>`;
+const MANCHES = [
+ { nom: "Les courriers au départ (S13)", questions: [
+  { q:"Une lettre part de l'entreprise vers un client. Doit-elle être signée ?", o:["Oui, toujours : sans signature, elle n'engage personne","Seulement si le client le demande","Non, l'en-tête de l'entreprise suffit"], a:[0], e:"Une lettre au départ est toujours signée. La signature engage la personne qui signe et l'entreprise." },
+  { q:"Vous préparez une attestation de présence pour un salarié. Qu'ajoutez-vous en plus de la signature ?", o:["Le cachet (tampon) de l'entreprise","Une formule « Bisous »","Rien de plus"], a:[0], e:"Le cachet authentifie les documents officiels qui engagent l'entreprise : attestations, devis acceptés, bons de commande, factures…" },
+  { q:"Mme LAGUERRE, la gérante, vous demande de signer à sa place une lettre qu'elle a validée. Que mettez-vous devant votre nom ?", o:["P/O (pour ordre)","P.J.","N/Réf."], a:[0], e:"P/O = pour ordre : vous signez au nom de la personne qui vous l'a demandé. P.J. = pièces jointes, N/Réf. = nos références." },
+  { v:'<div class="extrait" style="font-family:Consolas,monospace">N/Réf. : JL/wm</div>', fixe:true, q:"Dans cette référence, que signifient les initiales « JL/wm » ?", o:["JL = la personne qui signe, wm = la personne qui a tapé la lettre","JL = le destinataire, wm = l'expéditeur","JL = le service, wm = le numéro du dossier"], a:[0], e:"Les initiales en majuscules sont celles du signataire (Josiane LAGUERRE), celles en minuscules celles de la personne qui a rédigé ou tapé la lettre." },
+  { q:"Une cliente résilie son contrat d'assurance. Quel mode d'envoi choisit-on ?", o:["Lettre recommandée avec accusé de réception","Lettre simple","Un SMS"], a:[0], e:"Le recommandé avec AR prouve l'envoi et la date de réception : indispensable pour une résiliation ou une mise en demeure." },
+ ]},
+ { nom: "Les différents écrits de l'entreprise", questions: [
+  { v:NOTE, fixe:true, q:"Quel est ce document ?", o:["Une note de service","Une note d'information","Un compte rendu","Une lettre"], a:[0], e:"Il s'adresse au personnel et donne une <b>consigne obligatoire</b> (« devra être à son poste ») : c'est une note de service. Une note d'information, elle, informe sans rien imposer." },
+  { q:"Une nouvelle collègue arrive à l'accueil lundi. Vous voulez juste prévenir l'équipe. Quel écrit ?", o:["Une note d'information","Une note de service","Un procès-verbal"], a:[0], e:"On informe, on n'impose rien : note d'information." },
+  { q:"Après une réunion d'équipe, on vous demande de résumer ce qui a été dit et décidé. Quel écrit rédigez-vous ?", o:["Un compte rendu","Un rapport","Une convocation"], a:[0], e:"Le compte rendu relate de façon objective et synthétique ce qui s'est dit et décidé, sans donner son avis." },
+  { q:"Lequel de ces écrits a une valeur juridique ?", o:["Le procès-verbal (PV)","Le compte rendu","La note d'information"], a:[0], e:"Le PV (assemblée générale, conseil d'administration…) consigne officiellement les délibérations et les votes : il a une valeur juridique et il est signé." },
+  { q:"Votre responsable vous demande d'analyser les retards à l'accueil et de proposer des solutions. Quel écrit ?", o:["Un rapport","Un compte rendu","Une note de service"], a:[0], e:"Le rapport analyse une situation, donne un avis argumenté et propose des solutions. Le compte rendu, lui, ne donne pas d'avis." },
+  { multi:true, q:"Pour organiser une réunion, quels documents envoie-t-on <u>avant</u> la réunion ?", o:["La convocation","L'ordre du jour","Le compte rendu"], a:[0,1], e:"Avant : la convocation (qui, quand, où) et l'ordre du jour (les points abordés). Le compte rendu se rédige après." },
+ ]},
+ { nom: "Question bonus", bonus:true, questions: [
+  { q:"Pendant la réunion, vous prenez des notes. Que faites-vous ?", o:["J'écris des mots-clés, des abréviations et des symboles (→, =, ≠)","J'écris tout, mot pour mot","J'enregistre et je n'écris rien"], a:[0], e:"On ne peut pas tout écrire : on garde l'essentiel avec des mots-clés, abréviations et symboles, en s'aidant du QQOQCCP (Qui ? Quoi ? Où ? Quand ? Comment ? Combien ? Pourquoi ?)." },
+ ]},
+];
+
+const melange = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const app = document.getElementById('app');
+let prenom = '', liste = [], idx = 0, resultats = [];
+
+function accueil() {
+  const total = MANCHES.reduce((s, m) => s + m.questions.length, 0);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bienvenue !</p>
+    <p>${total} questions en ${MANCHES.length - 1} manches, plus une question bonus. Après chaque réponse, une explication s'affiche. À la fin, vous verrez votre niveau par manche et la liste des points à revoir.</p>
+    <p><label for="p"><b>Votre prénom :</b></label></p>
+    <input type="text" id="p" placeholder="Prénom" autocomplete="off">
+    <button class="btn vert" id="go">Commencer</button></div>`;
+  document.getElementById('go').onclick = () => { prenom = document.getElementById('p').value.trim() || 'Stagiaire'; demarrer(); };
+}
+
+function demarrer() {
+  liste = []; resultats = []; idx = 0;
+  MANCHES.forEach((m, mi) => m.questions.forEach(q => {
+    const ordre = q.fixe ? q.o.map((_, i) => i) : melange(q.o.map((_, i) => i));
+    liste.push({ ...q, manche: mi, ordre });
+  }));
+  afficher();
+}
+
+function afficher() {
+  const q = liste[idx], m = MANCHES[q.manche];
+  const pct = Math.round(idx / liste.length * 100);
+  app.innerHTML = `<div class="carte">
+    <div class="manche">${m.bonus ? '★ ' : 'Manche ' + (q.manche + 1) + ' · '}${m.nom}</div>
+    <div class="progression"><div style="width:${pct}%"></div></div>
+    <div class="question">${idx + 1}. ${q.q}</div>
+    ${q.v ? `<div class="visuel">${q.v}</div>` : ''}
+    <div class="consigne">${q.multi ? 'Plusieurs réponses possibles : cochez toutes les bonnes, puis validez.' : 'Une seule bonne réponse.'}</div>
+    <div id="choix">${q.ordre.map(i => `<button class="choix" data-i="${i}">${q.o[i]}</button>`).join('')}</div>
+    ${q.multi ? '<button class="btn" id="valider" disabled>Valider</button>' : ''}
+    <div id="retour"></div></div>`;
+  const boutons = [...document.querySelectorAll('.choix')];
+  if (q.multi) {
+    const sel = new Set();
+    boutons.forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); b.classList.toggle('coche'); document.getElementById('valider').disabled = sel.size === 0; });
+    document.getElementById('valider').onclick = () => corriger([...sel]);
+  } else boutons.forEach(b => b.onclick = () => corriger([+b.dataset.i]));
+}
+
+function corriger(rep) {
+  const q = liste[idx];
+  const ok = rep.length === q.a.length && rep.every(r => q.a.includes(r));
+  resultats.push({ manche: q.manche, ok, q: q.q, e: q.e });
+  document.querySelectorAll('.choix').forEach(b => {
+    const i = +b.dataset.i; b.disabled = true; b.classList.remove('coche');
+    if (q.a.includes(i)) b.classList.add('bon'); else if (rep.includes(i)) b.classList.add('faux');
+  });
+  const v = document.getElementById('valider'); if (v) v.remove();
+  document.getElementById('retour').innerHTML = `<div class="retour ${ok ? 'ok' : 'ko'}"><b>${ok ? 'Bonne réponse !' : 'Pas tout à fait.'}</b> ${q.e}</div>
+    <button class="btn vert" id="suite">${idx < liste.length - 1 ? 'Question suivante' : 'Voir mon résultat'}</button>`;
+  document.getElementById('suite').onclick = () => { idx++; idx < liste.length ? afficher() : bilan(); };
+  document.getElementById('suite').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function niveau(p) { return p >= 80 ? '<span class="niv acquis">Acquis</span>' : p >= 50 ? '<span class="niv encours">En cours</span>' : '<span class="niv revoir">À revoir</span>'; }
+
+function bilan() {
+  const notes = resultats.filter(r => !MANCHES[r.manche].bonus);
+  const bons = notes.filter(r => r.ok).length;
+  const bonus = resultats.find(r => MANCHES[r.manche].bonus);
+  const lignes = MANCHES.map((m, mi) => {
+    if (m.bonus) return '';
+    const rs = resultats.filter(r => r.manche === mi), b = rs.filter(r => r.ok).length, p = Math.round(b / rs.length * 100);
+    return `<tr><td>${m.nom}</td><td>${b} / ${rs.length}</td><td>${niveau(p)}</td></tr>`;
+  }).join('');
+  const erreurs = notes.filter(r => !r.ok);
+  app.innerHTML = `<div class="carte">
+    <p class="question">Bravo ${prenom} !</p>
+    <div class="score">${bons} / ${notes.length}</div>
+    <p style="text-align:center">${bonus && bonus.ok ? '★ Question bonus réussie !' : 'Question bonus : on en reparle à la correction.'}</p>
+    <table><tr><th>Manche</th><th>Score</th><th>Niveau</th></tr>${lignes}</table>
+    <p style="font-size:.85rem;color:#666">Acquis : 80 % et plus · En cours : 50 à 79 % · À revoir : moins de 50 %</p></div>
+    <div class="carte"><p class="question">À revoir</p>
+    ${erreurs.length ? '<ul class="arevoir">' + erreurs.map(r => `<li><b>${r.q}</b><br>${r.e}</li>`).join('') + '</ul>' : '<p>Aucune erreur : tout est acquis !</p>'}
+    <button class="btn" id="rejouer">Rejouer</button></div>`;
+  document.getElementById('rejouer').onclick = demarrer;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+accueil();
+</script>
+</body>
+</html>
