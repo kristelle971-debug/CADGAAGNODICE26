@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis S16 – CADGA</title>
+<style>
+  :root { --bleu:#247091; --vert:#45967C; --violet:#484596; --fond:#f4f7f9; --rouge:#c0392b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:var(--fond); color:#1f2a33; }
+  header { background:var(--vert); color:#fff; padding:22px 18px; text-align:center; border-radius:0 0 18px 18px; }
+  header h1 { margin:0; font-size:1.6rem; }
+  header p { margin:6px 0 0; opacity:.95; }
+  main { max-width:820px; margin:0 auto; padding:18px; }
+  .carte { background:#fff; border-left:6px solid var(--bleu); border-radius:14px; padding:20px; margin:16px 0; box-shadow:0 3px 10px rgba(0,0,0,.08); }
+  .manche { display:inline-block; background:var(--violet); color:#fff; border-radius:20px; padding:4px 14px; font-size:.85rem; font-weight:600; }
+  .progress { height:10px; background:#dde6eb; border-radius:6px; overflow:hidden; margin:10px 0 4px; }
+  .progress div { height:100%; background:var(--bleu); width:0; transition:width .3s; }
+  .compteur { font-size:.9rem; color:#556; }
+  h2 { font-size:1.25rem; line-height:1.4; margin:14px 0; }
+  .situation { background:#eef4f7; border-radius:10px; padding:10px 14px; font-style:italic; margin-bottom:6px; }
+  .options button { display:block; width:100%; text-align:left; margin:9px 0; padding:13px 15px; font-size:1.02rem; border:2px solid #cfdbe2; border-radius:10px; background:#fff; cursor:pointer; }
+  .options button:hover:not(:disabled) { border-color:var(--bleu); background:#f2f8fb; }
+  .options button.bon { border-color:var(--vert); background:#e5f4e4; }
+  .options button.faux { border-color:var(--rouge); background:#fbebeb; }
+  .explication { display:none; margin-top:12px; padding:12px 14px; border-radius:10px; background:#f7f6ff; border-left:4px solid var(--violet); }
+  .btn { background:var(--bleu); color:#fff; border:none; border-radius:10px; padding:12px 22px; font-size:1rem; cursor:pointer; margin-top:14px; }
+  .btn.vert { background:var(--vert); }
+  .score { font-size:2.4rem; font-weight:700; color:var(--vert); text-align:center; margin:8px 0; }
+  .revoir li { margin:8px 0; }
+  .icone { font-size:2.2rem; text-align:center; }
+  footer { text-align:center; font-size:.8rem; color:#667; padding:20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Quiz des acquis – Session 16</h1>
+  <p>CADGA · Révision S15 et entrée dans le stock · Niveau moyen</p>
+</header>
+<main>
+  <div id="accueil" class="carte">
+    <div class="icone">📝 📋 📦</div>
+    <h2>Trois manches et un bonus</h2>
+    <p><b>Manche 1</b> : le compte rendu · <b>Manche 2</b> : note de service ou note d'information · <b>Manche 3</b> : préparer une réunion · <b>Bonus</b> : on entre dans le stock.</p>
+    <p>Attention aux pièges : plusieurs réponses peuvent sembler justes, une seule l'est vraiment. Lisez bien chaque mot.</p>
+    <button class="btn vert" onclick="demarrer()">Commencer</button>
+  </div>
+
+  <div id="quiz" class="carte" style="display:none">
+    <span class="manche" id="manche"></span>
+    <div class="progress"><div id="barre"></div></div>
+    <div class="compteur" id="compteur"></div>
+    <div id="situation" class="situation" style="display:none"></div>
+    <h2 id="question"></h2>
+    <div class="options" id="options"></div>
+    <div class="explication" id="explication"></div>
+    <button class="btn" id="suivant" style="display:none" onclick="suivante()">Question suivante</button>
+  </div>
+
+  <div id="fin" class="carte" style="display:none">
+    <div class="icone" id="emoji"></div>
+    <div class="score" id="score"></div>
+    <p id="message" style="text-align:center"></p>
+    <h2>À revoir</h2>
+    <ul class="revoir" id="revoir"></ul>
+    <button class="btn vert" onclick="location.reload()">Recommencer</button>
+  </div>
+</main>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S16</footer>
+
+<script>
+const Q = [
+ {m:"Manche 1 · Le compte rendu", s:"Pendant la réunion MAJESTIC, un participant lance : « Franchement, ce fournisseur, c'est n'importe quoi ! »",
+  q:"Comment cette intervention apparaît-elle dans le compte rendu ?",
+  o:["Telle quelle, entre guillemets, pour être fidèle","« M. X fait part de son mécontentement concernant les délais du fournisseur. »","« Le fournisseur est jugé très mauvais par l'équipe. »","Elle n'apparaît jamais : on ne note que les décisions"],
+  c:1, e:"Le compte rendu est objectif : on reformule au style indirect, sans jugement et sans langage oral. La réponse 3 généralise un avis à toute l'équipe : c'est une interprétation."},
+ {m:"Manche 1 · Le compte rendu", q:"Votre relevé des actions indique : « Commander les fournitures ». Qu'est-ce qui manque ?",
+  o:["Le prix des fournitures","Qui s'en charge et pour quand","La liste des participants","Rien, l'action est claire"],
+  c:1, e:"Une action se note toujours avec quoi, qui et pour quand. Sans responsable ni échéance, personne ne se sent concerné."},
+ {m:"Manche 1 · Le compte rendu", q:"La réunion a eu lieu lundi matin. Quand le compte rendu doit-il être diffusé au plus tard ?",
+  o:["Lundi soir, obligatoirement","Mercredi matin","À la prochaine réunion mensuelle","Quand l'animateur aura le temps de le relire"],
+  c:1, e:"On diffuse sous 24 à 48 h, après relecture et validation par l'animateur. Lundi soir serait bien, mais ce n'est pas une obligation."},
+ {m:"Manche 1 · Le compte rendu", q:"Lequel de ces documents a une valeur juridique ?",
+  o:["Le compte rendu, s'il est signé","Le procès-verbal","Les notes prises pendant la réunion","Le relevé des actions"],
+  c:1, e:"Le procès-verbal relate les délibérations et les votes, il est signé (président et secrétaire de séance) et conservé dans un registre. Signer un compte rendu ne le transforme pas en PV."},
+
+ {m:"Manche 2 · Note de service ou note d'information", s:"« À compter du lundi 1er décembre 2026, toute demande de fournitures se fera uniquement par le formulaire interne. »",
+  q:"Ce texte est extrait de :",
+  o:["Une note d'information, car il informe d'un changement","Une note de service, car il impose une nouvelle règle","Un compte rendu, car la décision a été prise en réunion","Une lettre, car il s'adresse au personnel"],
+  c:1, e:"Il ne suffit pas d'annoncer un changement : ici on oblige à utiliser le formulaire. Une consigne obligatoire, c'est une note de service. Question à se poser : est-ce que j'oblige ou est-ce que j'informe ?"},
+ {m:"Manche 2 · Note de service ou note d'information", s:"« Le service comptabilité s'installe au 2e étage à partir du 16 novembre. Ses numéros de poste restent inchangés. »",
+  q:"Il s'agit de :",
+  o:["Une note de service, car il y a une date d'effet","Une note d'information","Une circulaire","Une convocation"],
+  c:1, e:"Une date d'effet ne suffit pas à faire une note de service. Personne n'a rien à appliquer : on informe. C'est une note d'information."},
+ {m:"Manche 2 · Note de service ou note d'information", q:"Quelle fin de note est correcte ?",
+  o:["« Cordialement, » puis la signature","« Veuillez agréer, Madame, Monsieur, l'expression de nos salutations distinguées. »","« Pour toute question, contacter le service RH, poste 214. » puis nom, fonction et signature","« Merci de votre compréhension, bonne journée à tous ! »"],
+  c:2, e:"Une note n'a ni formule d'appel ni formule de politesse, ni « Cordialement ». On peut terminer par une phrase de contact, puis le nom, la fonction et la signature."},
+ {m:"Manche 2 · Note de service ou note d'information", q:"L'assistante a rédigé la note de service sur la fermeture du 24/12 au 04/01. Qui la signe ?",
+  o:["L'assistante, puisqu'elle l'a rédigée","La direction","Personne : elle est affichée, pas envoyée","Le premier salarié qui la lit"],
+  c:1, e:"L'assistante peut la rédiger, mais c'est la personne qui a autorité qui la signe. C'est la signature de la direction qui rend la consigne obligatoire."},
+ {m:"Manche 2 · Note de service ou note d'information", q:"Quelle formulation affaiblit une note de service ?",
+  o:["« Il est demandé à chaque salarié de… »","« Les salariés devront… »","« Il serait souhaitable que chacun… »","« À compter du lundi 4 janvier 2027… »"],
+  c:2, e:"Le conditionnel (« il serait souhaitable ») transforme l'ordre en conseil. Une note de service s'écrit au présent ou au futur, au ton impératif."},
+ {m:"Manche 2 · Note de service ou note d'information", q:"Quel objet est le mieux rédigé ?",
+  o:["« Information importante à lire »","« Bonjour à tous, voici les dates de fermeture »","« Fermeture de l'agence du 24/12/2026 au 04/01/2027 »","« Fêtes de fin d'année »"],
+  c:2, e:"Un objet est court, précis, et dit de quoi il s'agit dès la première lecture. « Fêtes de fin d'année » est court mais trop vague."},
+
+ {m:"Manche 3 · Préparer une réunion", q:"Votre ordre du jour comporte 4 points. Lequel doit être placé en dernier ?",
+  o:["Le point le plus important","Le budget","Les questions diverses","Le compte rendu de la réunion précédente"],
+  c:2, e:"L'ordre du jour est une liste numérotée qui se termine toujours par « Questions diverses ». L'approbation du compte rendu précédent se place plutôt au début."},
+ {m:"Manche 3 · Préparer une réunion", q:"La réunion mensuelle est le jeudi 10 décembre. Dans quelle période envoyer la convocation ?",
+  o:["Le 9 décembre","Entre le 25 novembre et le 2 décembre","Le 10 novembre","Le matin même, par mail"],
+  c:1, e:"La convocation part 8 à 15 jours avant la réunion, avec l'ordre du jour joint. Pour une assemblée générale, ce sont les statuts qui fixent le délai."},
+ {m:"Manche 3 · Préparer une réunion", q:"Qu'est-ce qu'on retrouve du dernier compte rendu dans le nouvel ordre du jour ?",
+  o:["Les remarques personnelles des participants","Le point sur les actions décidées (qui a fait quoi)","La liste complète des présents","Rien : chaque réunion repart de zéro"],
+  c:1, e:"Le relevé des actions du dernier compte rendu sert à faire le point à la réunion suivante : c'est ce qui assure le suivi."},
+
+ {m:"Bonus · On entre dans le stock", q:"Il reste 14 ramettes de papier. Le seuil d'alerte est fixé à 20. Que faites-vous ?",
+  o:["Rien, il en reste encore","Je lance la commande","J'attends d'être à zéro pour commander","Je préviens la direction qu'il y a une rupture de stock"],
+  c:1, e:"Dès que le stock passe sous le seuil d'alerte (ou l'atteint), on commande. Ce n'est pas encore une rupture : la rupture, c'est quand il n'y a plus rien."},
+ {m:"Bonus · On entre dans le stock", q:"En Guadeloupe, comment stocker les ramettes de papier ?",
+  o:["Ouvertes, pour qu'elles respirent","Dans leur emballage fermé, surélevées, loin des murs","Près de la climatisation pour les garder au frais","Peu importe, le papier ne s'abîme pas"],
+  c:1, e:"L'humidité fait gondoler le papier, qui bourre ensuite l'imprimante. Emballage fermé, surélevé, loin des murs et des sources d'eau."}
+];
+let i=0, score=0, rates=[];
+function demarrer(){ document.getElementById('accueil').style.display='none'; document.getElementById('quiz').style.display='block'; afficher(); }
+function afficher(){
+  const x=Q[i];
+  document.getElementById('manche').textContent=x.m;
+  document.getElementById('compteur').textContent='Question '+(i+1)+' sur '+Q.length;
+  document.getElementById('barre').style.width=(i/Q.length*100)+'%';
+  const s=document.getElementById('situation'); if(x.s){s.style.display='block'; s.textContent=x.s;} else s.style.display='none';
+  document.getElementById('question').textContent=x.q;
+  const o=document.getElementById('options'); o.innerHTML='';
+  x.o.forEach((t,k)=>{ const b=document.createElement('button'); b.textContent=t; b.onclick=()=>repondre(k,b); o.appendChild(b); });
+  const e=document.getElementById('explication'); e.style.display='none';
+  document.getElementById('suivant').style.display='none';
+}
+function repondre(k,b){
+  const x=Q[i], bs=document.querySelectorAll('#options button');
+  bs.forEach(z=>z.disabled=true);
+  bs[x.c].classList.add('bon');
+  if(k===x.c){ score++; } else { b.classList.add('faux'); rates.push(x); }
+  const e=document.getElementById('explication');
+  e.innerHTML=(k===x.c?'<b>✅ Bonne réponse.</b> ':'<b>❌ Pas tout à fait.</b> ')+x.e;
+  e.style.display='block';
+  const n=document.getElementById('suivant'); n.textContent = i===Q.length-1 ? 'Voir mon score' : 'Question suivante'; n.style.display='inline-block';
+}
+function suivante(){ i++; if(i<Q.length) afficher(); else fin(); }
+function fin(){
+  document.getElementById('quiz').style.display='none'; document.getElementById('fin').style.display='block';
+  document.getElementById('score').textContent=score+' / '+Q.length;
+  const p=score/Q.length;
+  document.getElementById('emoji').textContent = p>=0.8?'🏆':p>=0.6?'👍':'💪';
+  document.getElementById('message').textContent = p>=0.8?'Excellent, les écrits professionnels sont bien acquis.':p>=0.6?'Bon résultat. Quelques points à revoir ci-dessous.':'On reprend ensemble les points ci-dessous.';
+  const r=document.getElementById('revoir');
+  if(rates.length===0){ r.innerHTML='<li>Rien à revoir, bravo !</li>'; }
+  else rates.forEach(x=>{ const li=document.createElement('li'); li.innerHTML='<b>'+x.m.split(' · ')[1]+'</b> : '+x.q; r.appendChild(li); });
+}
+</script>
+</body>
+</html>
