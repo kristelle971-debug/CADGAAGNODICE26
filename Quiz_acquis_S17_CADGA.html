@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – Session 17 – CADGA</title>
+<style>
+:root{--vert:#45967C;--bleu:#247091;--violet:#484596;--ok:#2e7d4f;--ko:#c0392b;--fond:#f4f6f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--fond);color:#222;line-height:1.45}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 130px}
+.banner{background:var(--vert);color:#fff;border-radius:14px;padding:16px 20px;box-shadow:0 3px 10px rgba(0,0,0,.15);margin-bottom:16px}
+.banner h1{margin:0;font-size:1.45rem}
+.banner p{margin:4px 0 0;opacity:.95}
+.card{background:#fff;border-left:6px solid var(--bleu);border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+.tag{display:inline-block;background:var(--violet);color:#fff;border-radius:20px;padding:3px 12px;font-size:.85rem;margin:0 6px 8px 0}
+.fmt{display:inline-block;background:#e7f1f6;color:var(--bleu);border-radius:20px;padding:3px 12px;font-size:.85rem;font-weight:600}
+.prog{height:8px;background:#dde3e8;border-radius:6px;overflow:hidden;margin:6px 0 14px}
+.prog div{height:100%;background:var(--vert);transition:width .3s}
+h2{margin:.2em 0 .6em;font-size:1.15rem;color:var(--bleu)}
+.q{font-size:1.1rem;font-weight:600;margin:6px 0 12px}
+.aff{font-size:1.08rem;background:#f3f2fb;border-radius:10px;padding:12px 14px;margin:0 0 12px;font-style:italic}
+.opt,.it{display:block;width:100%;text-align:left;background:#fff;border:2px solid #cfd8de;border-radius:10px;padding:10px 14px;margin:7px 0;font-size:1rem;cursor:pointer;font-family:inherit;color:#222}
+.opt:hover:not([disabled]),.it:hover:not([disabled]){border-color:var(--bleu);background:#f0f7fa}
+.good{border-color:var(--ok)!important;background:#e6f4ec!important}
+.bad{border-color:var(--ko)!important;background:#fbeaea!important}
+.sel{border-color:var(--violet)!important;background:#efeefa!important}
+button[disabled]{cursor:default}
+.grid2{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.ans{min-height:48px;border:2px dashed #b8c4cc;border-radius:10px;padding:6px 10px;margin:8px 0}
+.ans ol{margin:4px 0;padding-left:22px}
+.small{font-size:.9rem;color:#5b6a72}
+.expl{margin-top:12px;padding:12px 14px;border-radius:10px;background:#f3f2fb;border-left:5px solid var(--violet)}
+.expl b.v{color:var(--ok)} .expl b.x{color:var(--ko)}
+.btn{background:var(--bleu);color:#fff;border:0;border-radius:10px;padding:10px 20px;font-size:1rem;cursor:pointer;margin:10px 8px 0 0;font-family:inherit}
+.btn.sec{background:#fff;color:var(--bleu);border:2px solid var(--bleu)}
+input[type=text]{width:100%;padding:11px 12px;font-size:1rem;border:2px solid #cfd8de;border-radius:10px;font-family:inherit}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.doc{border:1px solid #9aa9b3;background:#fff;padding:10px;font-size:.88rem}
+.doc .ttl{font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+.doc table{border-collapse:collapse;width:100%;margin-top:6px}
+.doc th{background:#e8edf0;border:1px solid #9aa9b3;padding:4px 6px;text-align:left}
+.doc td{border:1px solid #9aa9b3;padding:4px 6px}
+.spot{cursor:pointer}
+.spot:hover{background:#fff6d6}
+tr.spot.good td,tr.spot.bad td{background:inherit}
+tr.spot.good{background:#e6f4ec} tr.spot.bad{background:#fbeaea}
+.conv{border:1px solid #9aa9b3;background:#fff;padding:6px 10px;font-size:.95rem}
+.conv div.spot{padding:6px 8px;border-radius:6px;margin:2px 0;border:2px solid transparent}
+.mail{border:1px solid #c9d3d9;border-radius:10px;overflow:hidden;margin-bottom:10px}
+.mail .hd{background:#eef2f4;padding:8px 14px;font-size:.92rem}.mail .hd span{color:#5b6a72;display:inline-block;min-width:58px}
+.mail .obj{font-weight:700}.mail .bd{padding:10px 14px;white-space:pre-line}
+.mrow{display:grid;grid-template-columns:1fr 1.6fr;gap:10px;align-items:center;margin:8px 0}
+.mleft{font-weight:600;background:#e7f1f6;border-radius:8px;padding:9px 12px}
+.msel{width:100%;padding:9px 10px;font-size:.98rem;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff}
+@media(max-width:640px){.mrow{grid-template-columns:1fr}}
+.ftxt{font-size:1.08rem;line-height:2.3}
+.fsel{font-size:1rem;padding:4px 6px;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff;max-width:100%}
+.errq{border-bottom:1px solid #e3e8ec;padding:8px 0}.errq p{margin:4px 0}.ev{color:var(--ko)}.eb{color:var(--ok);font-weight:600}
+.res{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e3e8ec}
+.lvl{border-radius:20px;padding:3px 12px;color:#fff;font-size:.88rem;white-space:nowrap}
+.acq{background:var(--ok)} .enc{background:#d68910} .rev{background:var(--ko)}
+ul.revoir li{margin:6px 0}
+.score{font-size:2rem;font-weight:700;color:var(--vert)}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:3px solid var(--vert);text-align:center;font-size:.78rem;color:#555;padding:6px}
+@media(max-width:640px){.docs,.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">
+    <h1>Quiz des acquis – Session 17</h1>
+    <p>Les écrits professionnels · Le vocabulaire pro · Les objets · Préparer une réunion</p>
+  </div>
+  <div id="app"></div>
+</div>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S17 CADGA</footer>
+
+<script>
+// ===== Enregistrement des résultats (Google Sheets) =====
+// Collez entre les guillemets l'adresse de l'application Web (elle finit par /exec).
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbycVcC5I860JYdOz400XLzxiHpFklxJ0aKNhCBSfIDGzlqYlAAvMF00idbCBfU1vc_r/exec";
+const QUIZ_NOM = "Quiz des acquis S17";
+const GROUPE = "CADGA";
+// =========================================================
+const VF="Choisissez la bonne réponse et sa justification.";
+const MANCHES = [
+ {nom:"Manche 1 – Mémoriser", qs:[
+  {t:"match", q:"Associez chaque écrit professionnel à sa fonction.",
+   pairs:[["Note de service","Impose une consigne au personnel"],["Note d'information","Informe le personnel, sans obligation"],["Compte rendu","Relate fidèlement, sans donner d'avis"],["Rapport","Analyse une situation et propose des solutions"],["Lettre","S'adresse officiellement à l'extérieur"],["Mail","Échange rapide et courant, en interne ou à l'extérieur"]],
+   e:"La note reste <b>en interne</b>, la lettre part <b>vers l'extérieur</b>. Le compte rendu relate, le rapport analyse et propose. Le mail sert aux échanges courants.",
+   r:"Les différents écrits professionnels"},
+  {t:"order", q:"Remettez les questions du QQOQCCP dans l'ordre.",
+   items:["Qui ?","Quoi ?","Où ?","Quand ?","Comment ?","Combien ?","Pourquoi ?"],
+   e:"QQOQCCP : Qui ? Quoi ? Où ? Quand ? Comment ? Combien ? Pourquoi ? Sept questions pour n'oublier aucun aspect d'une demande.",
+   r:"La méthode QQOQCCP"},
+  {t:"match", q:"Associez chaque document de réunion à son rôle.",
+   pairs:[["Convocation","Invite les participants : qui, quand, où, pourquoi"],["Ordre du jour","Liste numérotée des points qui seront traités"],["Invitation agenda","Bloque le créneau dans l'agenda de chaque participant"],["Compte rendu","Relate les échanges et les décisions, après la réunion"]],
+   e:"La convocation <b>invite</b>, l'ordre du jour <b>liste les points</b>, l'invitation agenda <b>réserve le créneau</b>, le compte rendu <b>garde la trace</b> de ce qui a été dit et décidé.",
+   r:"Les documents de la réunion"},
+  {t:"qcm", q:"Laquelle de ces informations n'est PAS indispensable dans une convocation ?",
+   o:["La liste des participants excusés","La date et l'heure","Le lieu ou le lien de visio","L'ordre du jour"], a:0,
+   e:"La convocation doit dire <b>quand, où, pourquoi</b> (avec l'ordre du jour) et demander une confirmation. Les excusés, on les connaît après : ils figurent dans le compte rendu.",
+   r:"Les mentions de la convocation"},
+  {t:"qcm", q:"Pour une réunion interne ordinaire, quand envoie-t-on la convocation en général ?",
+   o:["Environ une semaine avant","La veille au soir","Un mois avant, obligatoirement","Le matin même"], a:0,
+   e:"L'usage est d'environ <b>une semaine</b>. Certaines instances ont un délai fixé par la loi (par exemple le CSE : ordre du jour communiqué au moins 3 jours avant).",
+   r:"Le délai d'envoi d'une convocation"},
+  {t:"qcm", q:"À quoi sert l'objet d'un mail ou d'une note ?",
+   o:["À dire en quelques mots de quoi parle le message","À saluer le destinataire avant le message","À résumer tout le contenu en une longue phrase","À indiquer le type de document envoyé"], a:0,
+   e:"L'objet permet au destinataire de savoir <b>en un coup d'œil</b> de quoi il s'agit, de trier et de retrouver le message. Il est court et précis.",
+   r:"Le rôle de l'objet"}
+ ]},
+ {nom:"Manche 2 – Comprendre", qs:[
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Dans un compte rendu, la personne qui rédige donne son avis sur ce qui a été décidé. »", q:VF,
+   o:["Faux : le compte rendu relate fidèlement, sans avis personnel","Vrai : c'est ce qui le distingue d'une simple prise de notes","Faux : il ne contient que la liste des participants","Vrai : à condition de signer le document en son nom"], a:0,
+   e:"Le compte rendu <b>relate</b> de façon neutre. Analyser et proposer, c'est le rôle du <b>rapport</b>.", r:"Compte rendu ou rapport"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Pour informer le personnel d'un changement d'horaires de la cafétéria, on rédige une note de service. »", q:VF,
+   o:["Faux : on informe sans imposer, c'est une note d'information","Vrai : tout écrit adressé au personnel est une note de service","Faux : il faut envoyer une lettre à chaque salarié","Vrai : car la note concerne l'ensemble du personnel"], a:0,
+   e:"Ce qui distingue les deux notes, c'est l'<b>obligation</b> : la note de service impose, la note d'information informe.", r:"Note de service ou note d'information"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Pour être plus clair, l'objet peut être une phrase complète. »", q:VF,
+   o:["Faux : l'objet est court, quelques mots clés, sans verbe conjugué","Vrai : une phrase complète évite tout malentendu","Vrai : à condition de commencer par « Bonjour »","Faux : l'objet doit toujours tenir en un seul mot"], a:0,
+   e:"L'objet n'est pas une phrase : il donne l'<b>essentiel en quelques mots</b> (quoi + quand, si besoin). Un seul mot est souvent trop vague.", r:"Rédiger un objet efficace"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Une lettre peut être envoyée par mail. »", q:VF,
+   o:["Vrai : en pièce jointe, signée ; le mail n'est que le moyen d'envoi","Faux : une lettre est toujours envoyée par la poste","Faux : dès qu'on l'envoie par mail, elle devient un mail","Vrai : il suffit de copier son texte dans le corps du mail"], a:0,
+   e:"Il ne faut pas confondre le <b>type de document</b> et le <b>moyen d'envoi</b>. Une lettre peut partir en pièce jointe d'un mail ; pour un envoi avec preuve, on utilise le recommandé.", r:"Type de document et moyen d'envoi"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Dans l'ordre du jour, on place les questions diverses en premier, pour les régler rapidement. »", q:VF,
+   o:["Faux : elles viennent en dernier, après les points importants","Vrai : cela libère du temps pour les sujets importants","Faux : elles ne figurent jamais dans un ordre du jour","Vrai : c'est l'usage dans toutes les entreprises"], a:0,
+   e:"Les sujets importants passent <b>en premier</b>, quand tout le monde est concentré. Les questions diverses, en dernier, laissent la place aux imprévus.", r:"Construire un ordre du jour"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« La convocation à une réunion part au nom de l'assistante qui l'a rédigée. »", q:VF,
+   o:["Faux : elle part au nom de l'organisateur, après sa validation","Vrai : c'est elle qui a rédigé et envoyé le document","Faux : elle part au nom du service des ressources humaines","Vrai : sauf si l'organisateur la signe à la main"], a:0,
+   e:"L'assistante <b>prépare</b>, fait <b>valider</b>, puis envoie au nom de l'organisateur (elle peut signer « Pour M. … »).", r:"Au nom de qui envoyer la convocation"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Quand l'horaire d'une réunion change, on crée une nouvelle invitation dans l'agenda. »", q:VF,
+   o:["Faux : on modifie l'invitation existante, et tous les invités sont prévenus","Vrai : une nouvelle invitation est plus visible pour les invités","Vrai : à condition de supprimer l'ancienne sans prévenir","Faux : on prévient seulement l'organisateur par téléphone"], a:0,
+   e:"On <b>met à jour</b> l'invitation existante : il n'y a qu'une version de référence et chacun reçoit la modification.", r:"Modifier une invitation"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Un participant facultatif doit assister à toute la réunion. »", q:VF,
+   o:["Faux : sa présence n'est pas indispensable, il vient s'il est utile","Vrai : une fois invité, il doit rester jusqu'à la fin","Vrai : facultatif veut seulement dire qu'il peut arriver en retard","Faux : un participant facultatif ne reçoit pas l'invitation"], a:0,
+   e:"Facultatif = <b>présence non indispensable</b>. Par exemple, une personne invitée pour un seul point : on lui indique l'heure approximative de son passage.", r:"Participants obligatoires et facultatifs"}
+ ]},
+ {nom:"Manche 3 – Vocabulaire pro", qs:[
+  {t:"fill", q:"Complétez ce texte sur la messagerie.",
+   text:"Je mets ma responsable en {0} pour qu'elle soit informée, sans qu'elle ait à agir. Pour ne pas dévoiler les adresses des 40 invités, je les place en {1}. Le contrat signé est en {2}.",
+   ans:["copie (Cc)","copie cachée (Cci)","pièce jointe"], extra:["objet","destinataire principal"],
+   e:"<b>Cc</b> : informer. <b>Cci</b> : informer sans que les destinataires voient les adresses des autres. La <b>pièce jointe</b> est le fichier joint au mail.", r:"Vocabulaire de la messagerie"},
+  {t:"fill", q:"Complétez ce texte sur la réunion.",
+   text:"La {0} invite les participants. Elle contient l'{1}, qui liste les points à traiter. Le jour de la réunion, chacun signe la feuille d'{2}. Ensuite, on rédige le {3}.",
+   ans:["convocation","ordre du jour","émargement","compte rendu"], extra:["rapport","note de service"],
+   e:"Convocation → ordre du jour → feuille d'<b>émargement</b> (preuve de présence) → compte rendu.", r:"Vocabulaire de la réunion"},
+  {t:"fill", q:"Complétez ce texte sur la signature et la diffusion.",
+   text:"L'assistante signe « {0} Hervé LUCAS » quand elle signe à la place du directeur, sur sa demande. Avant l'envoi, elle fait {1} le document. Puis elle le {2} à tous les services concernés.",
+   ans:["P/O","valider","diffuse"], extra:["PJ","relancer","archive"],
+   e:"<b>P/O</b> = pour ordre : on signe au nom de quelqu'un qui l'a demandé. On fait <b>valider</b>, puis on <b>diffuse</b>.", r:"Signer pour ordre, valider, diffuser"},
+  {t:"fill", q:"Complétez ce texte sur les délais.",
+   text:"Sans réponse avant la date {0}, je {1} poliment mon interlocuteur. La date à laquelle une facture doit être payée s'appelle l'{2}.",
+   ans:["limite","relance","échéance"], extra:["d'origine","archive","émission"],
+   e:"On fixe une date <b>limite</b>, on <b>relance</b> si besoin, et l'<b>échéance</b> est la date à laquelle un paiement ou une action est dû.", r:"Délais, relances et échéances"},
+  {t:"fill", q:"Complétez ce texte sur la lettre.",
+   text:"La formule d'{0} (« Madame, ») ouvre la lettre ; la formule de {1} la termine. Envoyée en recommandé avec {2}, la lettre permet de prouver que le destinataire l'a bien reçue.",
+   ans:["appel","politesse","accusé de réception"], extra:["objet","signature","copie cachée"],
+   e:"Formule d'<b>appel</b> au début, formule de <b>politesse</b> à la fin. L'<b>accusé de réception</b> prouve la réception.", r:"Vocabulaire de la lettre"},
+  {t:"fill", q:"Complétez ce texte sur le classement.",
+   text:"Pour retrouver facilement les fichiers, toute l'équipe suit la même {0} pour les nommer. Les documents qu'on ne consulte plus mais qu'on doit conserver sont {1}. Un document qu'on doit encore traiter est un dossier {2}.",
+   ans:["nomenclature","archivés","en cours"], extra:["convocation","diffusés","clos"],
+   e:"La <b>nomenclature</b> est la règle commune de nommage. On <b>archive</b> ce qui est terminé mais à conserver ; un dossier <b>en cours</b> est encore à traiter.", r:"Vocabulaire du classement"}
+ ]},
+ {nom:"Manche 4 – Les objets", qs:[
+  {t:"qcm", aff:"Objet : Information", q:"Quel est le principal défaut de cet objet ?",
+   o:["Il est trop vague : on ne sait pas de quoi il s'agit","Il est trop long pour un objet","Il contient une faute d'orthographe","Il manque un point à la fin"], a:0,
+   e:"« Information » ne dit rien : le destinataire ne sait ni de quoi il s'agit ni si c'est urgent. Exemple : « Fermeture du parking – Lundi 23 novembre ».", r:"Rédiger un objet efficace"},
+  {t:"qcm", aff:"Objet : Bonjour, je me permets de vous écrire pour savoir s'il serait possible de décaler notre rendez-vous de jeudi", q:"Quel est le principal défaut de cet objet ?",
+   o:["C'est une phrase entière : l'objet doit être court","Il est trop vague : on ne sait pas de quoi il s'agit","Il manque la signature de l'expéditeur","Il devrait être écrit en majuscules"], a:0,
+   e:"La formule de politesse et la phrase vont dans le <b>corps</b> du message. Objet possible : « Report du rendez-vous du jeudi 19 novembre ».", r:"Rédiger un objet efficace"},
+  {t:"qcm", aff:"Objet : URGENT !!! RÉUNION", q:"Quel est le principal défaut de cet objet ?",
+   o:["Majuscules et points d'exclamation agressifs, et aucune information précise","Il est trop long pour être lu rapidement","Le mot « réunion » ne doit jamais figurer dans un objet","Il manque la date d'envoi du message"], a:0,
+   e:"Les majuscules donnent l'impression de <b>crier</b>, et l'objet ne dit ni quelle réunion ni quand. Exemple : « Réunion d'équipe avancée à 9 h – Mardi 24 novembre ».", r:"Rédiger un objet efficace"},
+  {t:"qcm", aff:"Objet : Convoquation à la réunion du comité de direction du 8 décembre", q:"Quel est le principal défaut de cet objet ?",
+   o:["Une faute d'orthographe : on écrit « convocation »","Il est trop vague : on ne sait pas de quoi il s'agit","Il est trop long : il dépasse cinq mots","Il manque l'heure de la réunion"], a:0,
+   e:"<b>Convocation</b> s'écrit avec un c, comme « convoquer » se conjugue avec qu. Une faute dans l'objet est la première chose que le destinataire voit.", r:"L'orthographe de l'objet"},
+  {t:"spot", f:"Trouver le bon objet", q:"Une seule de ces propositions est un objet bien rédigé. Cliquez dessus.",
+   html:`<div class="conv">
+    <div class="spot" data-i="0">Objet : Demande</div>
+    <div class="spot" data-i="1">Objet : Panne du photocopieur du 2e étage – Demande d'intervention</div>
+    <div class="spot" data-i="2">Objet : Bonjour, notre photocopieur est encore en panne depuis ce matin</div>
+    <div class="spot" data-i="3">Objet : PHOTOCOPIEUR EN PANNE !!!</div></div>`,
+   a:1, e:"L'objet dit <b>quoi</b> (la panne, où) et <b>ce qu'on attend</b> (une intervention), en peu de mots, sans phrase ni cris.", r:"Rédiger un objet efficace"},
+  {t:"qcm", q:"Votre directrice impose le port du badge à tout le personnel à partir du 4 janvier 2027. Quel objet choisissez-vous pour la note de service ?",
+   o:["Port du badge obligatoire – À compter du 4 janvier 2027","Note de service concernant les badges","Rappel important à lire par tout le personnel","Merci de lire attentivement ce qui suit sur les badges"], a:0,
+   e:"Un bon objet dit <b>quoi</b> et <b>quand</b>. « Note de service » est le type de document, pas l'objet.", r:"Rédiger un objet efficace"},
+  {t:"qcm", q:"Vous transmettez à un client le devis qu'il a demandé pour la rénovation de sa cuisine. Quel objet choisissez-vous ?",
+   o:["Votre devis n° D-2026-145 – Rénovation de cuisine","Devis","Suite à votre demande, veuillez trouver ci-joint le devis","Document important à lire"], a:0,
+   e:"On donne la <b>référence</b> et le <b>sujet</b> : le client retrouve le message facilement, et vous aussi. La phrase « veuillez trouver ci-joint » va dans le corps du mail.", r:"Rédiger un objet efficace"},
+  {t:"qcm", q:"Un collègue vous a envoyé un mail, objet « Planning ». Vous lui répondez au sujet de vos congés de décembre. Que faites-vous de l'objet ?",
+   o:["Vous le précisez : « RE : Planning – Mes congés de décembre »","Vous le laissez tel quel, c'est une réponse","Vous le supprimez, il n'est pas utile dans une réponse","Vous le remplacez par « Réponse »"], a:0,
+   e:"En répondant, on garde le fil (RE :) mais on peut <b>préciser</b> l'objet s'il est trop vague : le destinataire sait tout de suite de quoi parle la réponse.", r:"L'objet d'une réponse"}
+ ]},
+ {nom:"Manche 5 – Appliquer", qs:[
+  {t:"qcm", q:"Un client conteste une facture et annonce qu'il va saisir un avocat. Quel écrit choisissez-vous pour répondre ?",
+   o:["Une lettre recommandée avec accusé de réception","Un mail de réponse rapide au client","Une note d'information adressée au client","Un compte rendu de l'incident pour le client"], a:0,
+   e:"Il y a un <b>enjeu juridique</b> : il faut pouvoir prouver l'envoi et la réception. Le mail reste pour les échanges courants.", r:"Quand choisir la lettre plutôt que le mail"},
+  {t:"qcm", q:"Une école doit annoncer la fermeture de la cantine vendredi, au personnel et aux parents d'élèves. Que préparez-vous ?",
+   o:["Une note d'information au personnel, un courrier ou un mail aux parents","Une note de service unique, adressée au personnel et aux parents","Une note d'information unique, affichée pour le personnel et les parents","Une lettre recommandée à chaque famille et à chaque membre du personnel"], a:0,
+   e:"Même information, <b>deux destinataires</b> : la note reste en interne ; les parents sont extérieurs à l'école.", r:"Note ou lettre : le destinataire"},
+  {t:"qcm", q:"Après un accident à l'atelier, la direction veut un document qui décrit les faits, en analyse les causes et propose des mesures. Que rédigez-vous ?",
+   o:["Un rapport","Un compte rendu","Une note de service","Une note d'information"], a:0,
+   e:"Décrire, <b>analyser et proposer</b> : c'est un rapport. Les mesures décidées ensuite pourront faire l'objet d'une note de service.", r:"Compte rendu ou rapport"},
+  {t:"spot", q:"Cette convocation contient une erreur. Cliquez sur la ligne à corriger.",
+   html:`<div class="conv">
+    <div class="spot" data-i="0"><b>Objet :</b> Comité de pilotage – Nouveau logiciel de facturation</div>
+    <div class="spot" data-i="1"><b>Date :</b> mardi 8 décembre 2026, de 14 h 00 à 15 h 30</div>
+    <div class="spot" data-i="2"><b>Lieu :</b> salle de réunion 2 (lien de visio pour les personnes à distance)</div>
+    <div class="spot" data-i="3"><b>Ordre du jour :</b> 1. Point d'avancement – 2. Planning de déploiement – 3. Questions diverses</div>
+    <div class="spot" data-i="4">Merci de confirmer votre présence avant le vendredi 4 décembre.</div>
+    <div class="spot" data-i="5"><b>Signature :</b> Julie MARTIN, assistante</div></div>
+    <p class="small">La réunion est organisée par M. Hervé LUCAS, directeur administratif et financier.</p>`,
+   a:5, e:"La convocation part au nom de l'<b>organisateur</b> : « Hervé LUCAS, directeur administratif et financier » (ou « Pour Hervé LUCAS » si l'assistante signe).", r:"Au nom de qui envoyer la convocation"},
+  {t:"qcm", q:"Un expert-comptable extérieur ne vient que pour le point 3 de la réunion. Comment l'invitez-vous ?",
+   o:["Invité facultatif, avec l'heure approximative de son point","Invité obligatoire pour toute la durée de la réunion","Pas invité : l'organisateur lui fera un résumé ensuite","Ordre du jour envoyé seul, sans invitation dans l'agenda"], a:0,
+   e:"Sa présence n'est utile que pour <b>un point</b> : facultatif, avec l'horaire de son passage pour ne pas lui faire perdre de temps.", r:"Participants obligatoires et facultatifs"},
+  {t:"qcm", q:"Deux jours avant la réunion, 3 invités sur 8 n'ont pas répondu. Votre responsable vous demande où en sont les réponses. Que faites-vous ?",
+   o:["Vous lui faites le point et relancez les 3 invités sans réponse","Vous retirez de la liste les 3 invités sans réponse","Vous lui conseillez d'attendre le jour J pour voir qui vient","Vous lui annoncez que les 3 invités sans réponse seront absents"], a:0,
+   e:"On ne suppose rien : on informe l'organisateur et on <b>relance</b> poliment, par mail ou par téléphone.", r:"Relancer les participants"},
+  {t:"order", q:"Votre responsable vous demande d'organiser une réunion. Remettez les étapes dans l'ordre.",
+   items:["Analyser la demande (QQOQCCP)","Croiser les agendas et réserver la salle","Rédiger la convocation et l'ordre du jour","Faire valider par l'organisateur","Envoyer l'invitation","Relancer les personnes sans réponse"],
+   e:"On analyse, on planifie, on rédige, on fait <b>valider</b>, on envoie, puis on <b>suit les réponses</b> et on relance.", r:"Les étapes de préparation d'une réunion"}
+ ]}
+];
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function prep(){MANCHES.forEach(m=>m.qs.forEach(q=>{if(q.t==='qcm'){const b=q.o0?q.o0[q.a0]:q.o[q.a];q.o0=q.o0||q.o;q.a0=q.a0??q.a;q.o=shuffle(q.o0);q.a=q.o.indexOf(b)}}))}
+prep();
+
+const total = MANCHES.reduce((s,m)=>s+m.qs.length,0);
+let st;
+const app = document.getElementById('app');
+const esc = s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const FMT={fill:"Texte à trous",qcm:"Choix unique",match:"Associer",order:"Remettre dans l'ordre",spot:"Repérer l'erreur"};
+
+function reset(nom){st={nom,m:0,i:0,done:0,score:MANCHES.map(()=>0),rate:[],err:[]}}
+
+function accueil(){
+ app.innerHTML=`<div class="card"><h2>Bienvenue !</h2>
+ <p>${total} questions en 5 manches : <b>mémoriser</b>, <b>comprendre</b>, <b>vocabulaire pro</b>, <b>rédiger des objets</b>, puis <b>appliquer</b> à des situations nouvelles. Plusieurs formats : texte à trous, choix unique, vrai ou faux justifié, associer, remettre dans l'ordre, repérer l'erreur. Une explication s'affiche après chaque réponse.</p>
+ <p><b>Votre prénom :</b></p><input type="text" id="nm" placeholder="Votre prénom" autocomplete="off">
+ <button class="btn" id="go">Commencer</button></div>`;
+ const go=()=>{const v=document.getElementById('nm').value.trim();if(!v){document.getElementById('nm').focus();return}reset(v);question()};
+ document.getElementById('go').onclick=go;
+ document.getElementById('nm').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+
+function mailHtml(m){return `<div class="mail"><div class="hd"><div><span>De :</span> ${m.de}</div><div><span>À :</span> ${m.a}</div><div><span>Date :</span> ${m.date}</div><div class="obj"><span>Objet :</span> ${m.obj}</div></div><div class="bd">${m.bd}</div></div>`}
+function entete(m,q){return `<span class="tag">${m.nom} · ${st.i+1}/${m.qs.length}</span><span class="fmt">${q.f||FMT[q.t]}</span>
+ <div class="prog"><div style="width:${st.done/total*100}%"></div></div>`}
+
+function question(){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ let body='';
+ if(q.t==='qcm'){
+  body=`${q.mail?mailHtml(q.mail):''}${q.aff?`<p class="aff">${q.aff}</p>`:''}<p class="q">${q.q}</p>
+  ${q.o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join('')}`;
+ } else if(q.t==='match'){
+  const L=shuffle(q.pairs.map((p,i)=>i)), R=shuffle(q.pairs.map((p,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Pour chaque élément, choisissez sa définition dans la liste, puis validez.</p>
+  ${L.map(i=>`<div class="mrow"><div class="mleft">${q.pairs[i][0]}</div><select class="msel" data-i="${i}"><option value="">— Choisir —</option>${R.map(j=>`<option value="${j}">${q.pairs[j][1]}</option>`).join('')}</select></div>`).join('')}
+  <button class="btn" id="mval" disabled>Valider</button>`;
+ } else if(q.t==='fill'){
+  const bank=shuffle(q.ans.concat(q.extra));
+  const txt=q.text.replace(/\{(\d)\}/g,(m,n)=>`<select class="fsel" data-n="${n}"><option value="">…</option>${bank.map(w=>`<option value="${esc(w)}">${w}</option>`).join('')}</select>`);
+  body=`<p class="q">${q.q}</p><p class="small">Choisissez le bon mot dans chaque liste, puis validez. Attention : certains mots sont en trop.</p>
+  <p class="ftxt">${txt}</p><button class="btn" id="fval" disabled>Valider</button>`;
+ } else if(q.t==='order'){
+  const S=shuffle(q.items.map((x,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Cliquez sur les étapes dans le bon ordre.</p>
+  <div>${S.map(i=>`<button class="it O" data-i="${i}">${q.items[i]}</button>`).join('')}</div>
+  <div class="ans"><ol id="ol"></ol></div>
+  <button class="btn sec" id="clr">Recommencer l'ordre</button><button class="btn" id="val" disabled>Valider</button>`;
+ } else if(q.t==='spot'){
+  body=`<p class="q">${q.q}</p>${q.html}`;
+ }
+ app.innerHTML=`<div class="card">${entete(m,q)}${body}<div id="fb"></div></div>`;
+ window.scrollTo(0,0);
+ if(q.t==='qcm') app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+   app.querySelectorAll('.opt').forEach(x=>{x.disabled=true;const n=+x.dataset.k;if(n===q.a)x.classList.add('good');else if(x===b)x.classList.add('bad')});
+   fin(+b.dataset.k===q.a,'',{votre:q.o[+b.dataset.k],bonne:q.o[q.a]})});
+ if(q.t==='match'){
+  const sels=[...app.querySelectorAll('.msel')], mv=document.getElementById('mval');
+  sels.forEach(x=>x.onchange=()=>{mv.disabled=sels.some(y=>y.value==='')});
+  mv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const lab=q.pairs[+x.dataset.i][0];if(x.value!==x.dataset.i){vv.push(lab+' → '+(q.pairs[+x.value]?q.pairs[+x.value][1]:''));bb.push(lab+' → '+q.pairs[+x.dataset.i][1])}});sels.forEach(x=>{x.disabled=true;const ok=x.value===x.dataset.i;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',`<div class="small" style="color:var(--ok);margin:0;grid-column:1/-1;text-align:right">Bonne réponse : ${q.pairs[+x.dataset.i][1]}</div>`)}});
+   mv.disabled=true;fin(err===0,err?`${err} erreur${err>1?'s':''} d'association.`:'',{votre:vv.join('<br>'),bonne:bb.join('<br>')})};
+ }
+ if(q.t==='fill'){
+  const sels=[...app.querySelectorAll('.fsel')], fv=document.getElementById('fval');
+  sels.forEach(x=>x.onchange=()=>{fv.disabled=sels.some(y=>y.value==='')});
+  fv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const g=q.ans[+x.dataset.n];if(x.value!==g){vv.push(x.value);bb.push(g)}});sels.forEach(x=>{x.disabled=true;const good=q.ans[+x.dataset.n];const ok=x.value===good;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',` <b style="color:var(--ok)">(${good})</b>`)}});
+   fv.disabled=true;fin(err===0,err?`${err} mot${err>1?'s':''} à revoir.`:'',{votre:vv.join(', '),bonne:bb.join(', ')})};
+ }
+ if(q.t==='order'){
+  let seq=[];const ol=document.getElementById('ol'),val=document.getElementById('val');
+  const maj=()=>{ol.innerHTML=seq.map(i=>`<li>${q.items[i]}</li>`).join('');val.disabled=seq.length!==q.items.length};
+  app.querySelectorAll('.O').forEach(b=>b.onclick=()=>{if(b.disabled)return;seq.push(+b.dataset.i);b.disabled=true;b.classList.add('sel');maj()});
+  document.getElementById('clr').onclick=()=>{seq=[];app.querySelectorAll('.O').forEach(b=>{b.disabled=false;b.classList.remove('sel')});maj()};
+  val.onclick=()=>{const good=seq.every((v,k)=>v===k);
+   ol.innerHTML=seq.map((v,k)=>`<li style="color:${v===k?'var(--ok)':'var(--ko)'}">${q.items[v]}</li>`).join('');
+   document.getElementById('clr').disabled=true;val.disabled=true;
+   fin(good,good?'':`Le bon ordre : ${q.items.join(' → ')}.`,{votre:seq.map(v=>q.items[v]).join(' → '),bonne:q.items.join(' → ')})};
+ }
+ if(q.t==='spot') app.querySelectorAll('.spot').forEach(el=>el.onclick=()=>{
+   if(app.querySelector('.spot.done'))return;
+   app.querySelectorAll('.spot').forEach(x=>{x.classList.add('done');if(+x.dataset.i===q.a)x.classList.add('good')});
+   const good=+el.dataset.i===q.a;if(!good)el.classList.add('bad');fin(good,'',{votre:el.textContent.trim(),bonne:app.querySelector(`.spot[data-i="${q.a}"]`).textContent.trim()})});
+}
+
+function fin(ok,extra,det){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ if(ok)st.score[st.m]++;else{st.rate.push(q.r);st.err.push({manche:m.nom,q:(q.aff?q.aff+' ':'')+q.q,votre:det?det.votre:'',bonne:det?det.bonne:''})}
+ st.done++;
+ const dernier = st.m===MANCHES.length-1 && st.i===m.qs.length-1;
+ document.getElementById('fb').innerHTML=`<div class="expl">${ok?'<b class="v">Bonne réponse !</b>':'<b class="x">Pas tout à fait.</b>'} ${extra?extra+' ':''}${q.e}</div>
+  <button class="btn" id="nx">${dernier?'Voir mes résultats':'Question suivante'}</button>`;
+ document.getElementById('nx').onclick=suivant;
+}
+
+function suivant(){st.i++;if(st.i>=MANCHES[st.m].qs.length){st.m++;st.i=0}if(st.m>=MANCHES.length)resultats();else question()}
+
+function niveau(p){return p>=0.8?['Acquis','acq']:p>=0.5?['En cours','enc']:['À revoir','rev']}
+
+function envoyer(tot){
+ if(!SHEET_URL)return;
+ const txt=h=>String(h).replace(/<br>/g,' | ').replace(/<[^>]+>/g,'');
+ const data={prenom:st.nom,groupe:GROUPE,quiz:QUIZ_NOM,score:tot,total:total,
+  manches:MANCHES.map((m,i)=>`${m.nom} : ${st.score[i]}/${m.qs.length}`).join(' ; '),
+  erreurs:st.err.map(x=>({manche:x.manche,question:txt(x.q),votre:txt(x.votre),bonne:txt(x.bonne)}))};
+ try{fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)})}catch(e){}
+}
+function resultats(){
+ const tot=st.score.reduce((a,b)=>a+b,0);
+ envoyer(tot);
+ const lignes=MANCHES.map((m,i)=>{const [l,c]=niveau(st.score[i]/m.qs.length);
+  return `<div class="res"><span>${m.nom} : <b>${st.score[i]}/${m.qs.length}</b></span><span class="lvl ${c}">${l}</span></div>`}).join('');
+ const rev=[...new Set(st.rate)];
+ app.innerHTML=`<div class="card"><h2>Résultats de ${esc(st.nom)}</h2><p class="score">${tot} / ${total}</p>${lignes}</div>
+  <div class="card"><h2>Ce que je dois revoir</h2>
+  ${rev.length?`<ul class="revoir">${rev.map(r=>`<li>${r}</li>`).join('')}</ul>`:'<p>Rien du tout : tout est acquis, félicitations !</p>'}
+</div>
+  ${st.err.length?`<div class="card"><h2>Le détail de mes erreurs</h2>${st.err.map((x,i)=>`<div class="errq"><div class="small">${x.manche}</div><p><b>${i+1}. ${x.q}</b></p><p class="ev">Ma réponse : ${x.votre}</p><p class="eb">Bonne réponse : ${x.bonne}</p></div>`).join('')}</div>`:''}
+  <div class="card"><button class="btn" id="re">Recommencer</button></div>`;
+ document.getElementById('re').onclick=()=>{reset(st.nom);prep();question()};
+ window.scrollTo(0,0);
+}
+accueil();
+</script>
+</body>
+</html>
