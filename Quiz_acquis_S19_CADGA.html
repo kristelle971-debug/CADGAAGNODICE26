@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – Session 19 – CADGA</title>
+<style>
+:root{--vert:#45967C;--bleu:#247091;--violet:#484596;--ok:#2e7d4f;--ko:#c0392b;--fond:#f4f6f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--fond);color:#222;line-height:1.45}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 130px}
+.banner{background:var(--vert);color:#fff;border-radius:14px;padding:16px 20px;box-shadow:0 3px 10px rgba(0,0,0,.15);margin-bottom:16px}
+.banner h1{margin:0;font-size:1.45rem}
+.banner p{margin:4px 0 0;opacity:.95}
+.card{background:#fff;border-left:6px solid var(--bleu);border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+.tag{display:inline-block;background:var(--violet);color:#fff;border-radius:20px;padding:3px 12px;font-size:.85rem;margin:0 6px 8px 0}
+.fmt{display:inline-block;background:#e7f1f6;color:var(--bleu);border-radius:20px;padding:3px 12px;font-size:.85rem;font-weight:600}
+.prog{height:8px;background:#dde3e8;border-radius:6px;overflow:hidden;margin:6px 0 14px}
+.prog div{height:100%;background:var(--vert);transition:width .3s}
+h2{margin:.2em 0 .6em;font-size:1.15rem;color:var(--bleu)}
+.q{font-size:1.1rem;font-weight:600;margin:6px 0 12px}
+.aff{font-size:1.08rem;background:#f3f2fb;border-radius:10px;padding:12px 14px;margin:0 0 12px;font-style:italic}
+.opt,.it{display:block;width:100%;text-align:left;background:#fff;border:2px solid #cfd8de;border-radius:10px;padding:10px 14px;margin:7px 0;font-size:1rem;cursor:pointer;font-family:inherit;color:#222}
+.opt:hover:not([disabled]),.it:hover:not([disabled]){border-color:var(--bleu);background:#f0f7fa}
+.good{border-color:var(--ok)!important;background:#e6f4ec!important}
+.bad{border-color:var(--ko)!important;background:#fbeaea!important}
+.sel{border-color:var(--violet)!important;background:#efeefa!important}
+button[disabled]{cursor:default}
+.grid2{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.ans{min-height:48px;border:2px dashed #b8c4cc;border-radius:10px;padding:6px 10px;margin:8px 0}
+.ans ol{margin:4px 0;padding-left:22px}
+.small{font-size:.9rem;color:#5b6a72}
+.expl{margin-top:12px;padding:12px 14px;border-radius:10px;background:#f3f2fb;border-left:5px solid var(--violet)}
+.expl b.v{color:var(--ok)} .expl b.x{color:var(--ko)}
+.btn{background:var(--bleu);color:#fff;border:0;border-radius:10px;padding:10px 20px;font-size:1rem;cursor:pointer;margin:10px 8px 0 0;font-family:inherit}
+.btn.sec{background:#fff;color:var(--bleu);border:2px solid var(--bleu)}
+input[type=text]{width:100%;padding:11px 12px;font-size:1rem;border:2px solid #cfd8de;border-radius:10px;font-family:inherit}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.doc{border:1px solid #9aa9b3;background:#fff;padding:10px;font-size:.88rem}
+.doc .ttl{font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+.doc table{border-collapse:collapse;width:100%;margin-top:6px}
+.doc th{background:#e8edf0;border:1px solid #9aa9b3;padding:4px 6px;text-align:left}
+.doc td{border:1px solid #9aa9b3;padding:4px 6px}
+.spot{cursor:pointer}
+.spot:hover{background:#fff6d6}
+tr.spot.good td,tr.spot.bad td{background:inherit}
+tr.spot.good{background:#e6f4ec} tr.spot.bad{background:#fbeaea}
+.conv{border:1px solid #9aa9b3;background:#fff;padding:6px 10px;font-size:.95rem}
+.conv div.spot{padding:6px 8px;border-radius:6px;margin:2px 0;border:2px solid transparent}
+.mail{border:1px solid #c9d3d9;border-radius:10px;overflow:hidden;margin-bottom:10px}
+.mail .hd{background:#eef2f4;padding:8px 14px;font-size:.92rem}.mail .hd span{color:#5b6a72;display:inline-block;min-width:58px}
+.mail .obj{font-weight:700}.mail .bd{padding:10px 14px;white-space:pre-line}
+.mrow{display:grid;grid-template-columns:1fr 1.6fr;gap:10px;align-items:center;margin:8px 0}
+.mleft{font-weight:600;background:#e7f1f6;border-radius:8px;padding:9px 12px}
+.msel{width:100%;padding:9px 10px;font-size:.98rem;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff}
+@media(max-width:640px){.mrow{grid-template-columns:1fr}}
+.ftxt{font-size:1.08rem;line-height:2.3}
+.fsel{font-size:1rem;padding:4px 6px;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff;max-width:100%}
+.errq{border-bottom:1px solid #e3e8ec;padding:8px 0}.errq p{margin:4px 0}.ev{color:var(--ko)}.eb{color:var(--ok);font-weight:600}
+.res{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e3e8ec}
+.lvl{border-radius:20px;padding:3px 12px;color:#fff;font-size:.88rem;white-space:nowrap}
+.acq{background:var(--ok)} .enc{background:#d68910} .rev{background:var(--ko)}
+ul.revoir li{margin:6px 0}
+.score{font-size:2rem;font-weight:700;color:var(--vert)}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:3px solid var(--vert);text-align:center;font-size:.78rem;color:#555;padding:6px}
+@media(max-width:640px){.docs,.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">
+    <h1>Quiz des acquis – Session 19</h1>
+    <p>Gérer un agenda · Agendas partagés · Invitations · Visio (Meet et Teams)</p>
+  </div>
+  <div id="app"></div>
+</div>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S19 CADGA</footer>
+
+<script>
+// ===== Enregistrement des résultats (Google Sheets) =====
+// Collez entre les guillemets l'adresse de l'application Web (elle finit par /exec).
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbycVcC5I860JYdOz400XLzxiHpFklxJ0aKNhCBSfIDGzlqYlAAvMF00idbCBfU1vc_r/exec";
+const QUIZ_NOM = "Quiz des acquis S19";
+const GROUPE = "CADGA";
+// =========================================================
+const VF="Choisissez la bonne réponse et sa justification.";
+const MANCHES = [
+ {nom:"Manche 1 – Mémoriser", qs:[
+  {t:"match", q:"Pour chaque situation, choisissez le niveau d'accès à donner à l'agenda partagé du directeur.",
+   pairs:[["Le service comptabilité veut savoir quand le directeur est libre pour caler un point budget","Voir uniquement les disponibilités"],["Les commerciaux doivent connaître le lieu et l'objet des visites clients du directeur, pour ne pas prévoir les mêmes","Voir tous les détails"],["Vous prenez les rendez-vous et déplacez les réunions de votre directeur","Modifier les événements"],["Pendant le congé du directeur, sa remplaçante doit pouvoir donner l'accès à une nouvelle recrue","Modifier et gérer le partage"]],
+   e:"On donne à chacun <b>l'accès dont il a besoin, pas plus</b> : les disponibilités pour caler un créneau, les détails pour consulter, la modification pour gérer l'agenda, et la gestion du partage à 1 ou 2 personnes seulement.",
+   r:"Les niveaux d'accès d'un agenda partagé"},
+  {t:"match", q:"Associez chaque fonction de la visio à son usage.",
+   pairs:[["Couper son micro","Éviter les bruits de fond quand on ne parle pas"],["Partager son écran","Montrer un document ou une présentation aux participants"],["Lever la main","Demander la parole sans couper l'orateur"],["La discussion (chat)","Écrire un message ou partager un lien pendant la réunion"],["La salle d'attente","Faire entrer les participants un par un, sur validation"]],
+   e:"Ces fonctions existent dans <b>Google Meet</b> comme dans <b>Teams</b>, avec des noms et des icônes proches.",
+   r:"Les fonctionnalités de la visio"},
+  {t:"qcm", q:"Que doit contenir une invitation à une réunion en visio, en plus de la date et de l'heure ?",
+   o:["Le lien de visio et l'ordre du jour","Seulement le nom de l'organisateur","La liste des personnes qui ne sont pas invitées","Le compte rendu de la réunion précédente, obligatoirement"], a:0,
+   e:"Sans <b>lien</b>, personne ne peut se connecter ; sans <b>ordre du jour</b>, personne ne sait comment se préparer.",
+   r:"Le contenu d'une invitation"},
+  {t:"qcm", q:"Un client annule le rendez-vous qu'il avait avec votre responsable jeudi. Que faites-vous dans l'agenda ?",
+   o:["Vous supprimez l'événement et vous prévenez votre responsable","Vous laissez l'événement : votre responsable verra bien que le client ne vient pas","Vous remplacez le titre par « Annulé » sans prévenir personne","Vous proposez tout de suite le créneau à un autre client, sans en parler"], a:0,
+   e:"Un agenda tenu à jour reflète la <b>réalité</b> : on libère le créneau et on <b>informe</b> le responsable. Si le client veut reporter, on lui propose une nouvelle date.",
+   r:"Tenir à jour un agenda"},
+  {t:"qcm", q:"Un client appelle pour prendre rendez-vous avec votre responsable. Quelle information n'est PAS indispensable à noter ?",
+   o:["La couleur de sa voiture","Son nom et ses coordonnées","L'objet du rendez-vous","La durée prévue et le lieu"], a:0,
+   e:"Pour un rendez-vous : <b>qui</b> (nom, société, téléphone ou mail), <b>pourquoi</b> (objet), <b>quand</b>, <b>combien de temps</b> et <b>où</b> (ou en visio).",
+   r:"Prendre un rendez-vous"},
+  {t:"order", q:"Remettez dans l'ordre les étapes pour partager un agenda dans Google Agenda.",
+   items:["Créer l'agenda et lui donner un nom clair","Ouvrir « Paramètres et partage »","Ajouter l'adresse mail des personnes","Choisir le niveau d'accès de chacun","Cliquer sur « Envoyer »"],
+   e:"On crée l'agenda, on ouvre ses <b>paramètres</b>, on ajoute les personnes, on choisit leur <b>niveau d'accès</b>, puis on envoie.",
+   r:"Créer et partager un agenda"}
+ ]},
+ {nom:"Manche 2 – Comprendre", qs:[
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Pour qu'un collègue d'un autre service puisse caler une réunion avec moi, je lui donne l'accès « Modifier les événements ». »", q:VF,
+   o:["Faux : « Voir uniquement les disponibilités » lui suffit","Vrai : il doit pouvoir créer la réunion directement dans mon agenda","Vrai : c'est le niveau d'accès donné par défaut","Faux : il faut lui donner l'accès « Modifier et gérer le partage »"], a:0,
+   e:"Il a seulement besoin de savoir quand vous êtes <b>libre</b>. Les détails de vos rendez-vous ne le regardent pas.",
+   r:"Les niveaux d'accès d'un agenda partagé"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« L'assistante qui gère l'agenda de son responsable a besoin de l'accès « Modifier les événements ». »", q:VF,
+   o:["Vrai : elle doit pouvoir ajouter, déplacer et supprimer des rendez-vous","Faux : « Voir tous les détails » lui suffit","Faux : elle doit avoir le mot de passe de son responsable","Vrai : et elle doit aussi pouvoir supprimer l'agenda"], a:0,
+   e:"Pour <b>gérer</b> un agenda, il faut pouvoir le <b>modifier</b>. Gérer le partage reste en général réservé au responsable.",
+   r:"Gérer l'agenda d'un responsable"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Une collègue quitte le service : elle peut garder l'accès à l'agenda partagé, ce n'est pas grave. »", q:VF,
+   o:["Faux : on lui retire l'accès dans « Paramètres et partage »","Vrai : elle pourra toujours être utile plus tard","Vrai : un accès ne peut jamais être retiré","Faux : il faut supprimer l'agenda et en créer un autre"], a:0,
+   e:"Les accès se <b>mettent à jour</b> à chaque départ : c'est une question de confidentialité.",
+   r:"Retirer un accès"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« On peut enregistrer une visio sans prévenir les participants. »", q:VF,
+   o:["Faux : on informe les participants avant de lancer l'enregistrement","Vrai : l'organisateur décide seul","Vrai : si la réunion est interne","Faux : l'enregistrement d'une visio est toujours interdit"], a:0,
+   e:"L'enregistrement contient l'image et la voix des participants : on les <b>informe avant</b>, et Meet comme Teams affichent un signal pendant l'enregistrement.",
+   r:"Enregistrer une visio"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Dans l'agenda de mon responsable, je cale ses rendez-vous les uns à la suite des autres, sans pause, pour en placer le plus possible. »", q:VF,
+   o:["Faux : on prévoit une marge entre les rendez-vous (trajet, retard, préparation)","Vrai : c'est la meilleure façon d'optimiser sa journée","Vrai : à condition qu'ils aient tous lieu dans le même bureau","Faux : il ne faut jamais plus d'un rendez-vous par jour"], a:0,
+   e:"Un agenda trop serré ne tient pas : un retard décale toute la journée. On prévoit le <b>temps de trajet</b> et une <b>marge</b>.",
+   r:"Gérer l'agenda d'un responsable"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Un rendez-vous médical de mon responsable apparaît en « Privé » dans l'agenda partagé de l'équipe. »", q:VF,
+   o:["Vrai : l'équipe voit qu'il est occupé, sans voir le détail","Faux : tout doit être visible par l'équipe","Faux : il faut l'écrire en détail pour éviter les erreurs","Vrai : et il faut prévenir l'équipe par mail du motif"], a:0,
+   e:"L'option <b>« Privé »</b> bloque le créneau sans dévoiler le contenu : c'est la <b>confidentialité</b> de l'agenda.",
+   r:"Confidentialité de l'agenda"}
+ ]},
+ {nom:"Manche 3 – Vocabulaire pro", qs:[
+  {t:"fill", q:"Complétez ce texte sur l'invitation.",
+   text:"Je crée l'événement dans Google Agenda et j'ajoute un lien de {0}. J'ajoute un {1} 15 minutes avant pour que personne n'oublie. Ensuite, je suis les {2} des invités : oui, non ou peut-être.",
+   ans:["visio","rappel","réponses"], extra:["archive","compte rendu"],
+   e:"Le <b>lien de visio</b> pour se connecter, le <b>rappel</b> pour ne pas oublier, et le <b>suivi des réponses</b> pour savoir qui vient.",
+   r:"Créer une invitation"},
+  {t:"fill", q:"Complétez ce texte sur l'agenda.",
+   text:"La réunion d'équipe a lieu tous les lundis : je crée un événement {0}. Pour repérer d'un coup d'œil les rendez-vous clients, j'utilise un code {1}. Quand mon responsable est indisponible, le créneau apparaît comme {2}.",
+   ans:["périodique","couleur","occupé"], extra:["facultatif","privé","libre"],
+   e:"Un événement <b>périodique</b> se répète tout seul. Le <b>code couleur</b> aide à lire l'agenda. Un créneau pris s'affiche <b>occupé</b>.",
+   r:"Organiser un agenda"},
+  {t:"fill", q:"Complétez ce texte sur le partage.",
+   text:"Je partage l'agenda en choisissant pour chacun un niveau d'{0}. Le collègue reçoit un {1} avec un lien pour ajouter l'agenda. Si quelqu'un quitte l'équipe, je lui {2} l'accès.",
+   ans:["accès","mail","retire"], extra:["ordre du jour","donne"],
+   e:"Partager = choisir un <b>niveau d'accès</b>. La personne reçoit un <b>mail</b>. À son départ, on <b>retire</b> l'accès.",
+   r:"Créer et partager un agenda"},
+  {t:"fill", q:"Complétez ce texte sur la visio.",
+   text:"Avant de parler, je {0} la main. Pendant que je ne parle pas, je coupe mon {1}. Pour montrer le tableau de suivi à tout le monde, je {2} mon écran.",
+   ans:["lève","micro","partage"], extra:["enregistre","caméra","ferme"],
+   e:"<b>Lever la main</b>, <b>couper son micro</b>, <b>partager son écran</b> : les trois bons réflexes de la visio.",
+   r:"Les fonctionnalités de la visio"},
+  {t:"fill", q:"Complétez ce texte sur les participants.",
+   text:"La comptable ne vient que pour le point budget : je l'invite comme participante {0}. Le directeur doit être présent : il est participant {1}. Sans réponse deux jours avant, je les {2}.",
+   ans:["facultative","obligatoire","relance"], extra:["privée","archive"],
+   e:"<b>Facultatif</b> : présence utile mais pas indispensable. <b>Obligatoire</b> : présence nécessaire. Sans réponse, on <b>relance</b>.",
+   r:"Participants obligatoires et facultatifs"}
+ ]},
+ {nom:"Manche 4 – Appliquer", qs:[
+  {t:"qcm", q:"Votre responsable a deux rendez-vous mardi : 9 h au bureau, puis 10 h chez un client à 45 minutes de route. Le premier dure 1 heure. Que faites-vous ?",
+   o:["Vous le signalez et proposez de décaler l'un des rendez-vous","Vous laissez faire : il se débrouillera sur la route","Vous annulez le rendez-vous client sans prévenir","Vous raccourcissez le premier rendez-vous à 15 minutes sans lui demander"], a:0,
+   e:"Le temps de <b>trajet</b> rend les deux rendez-vous impossibles. L'assistante <b>repère le conflit</b> et propose une solution, sans décider seule.",
+   r:"Gérer l'agenda d'un responsable"},
+  {t:"qcm", q:"Un fournisseur demande un rendez-vous avec votre directrice jeudi à 14 h. Le créneau est libre dans l'agenda. Que faites-vous ?",
+   o:["Vous vérifiez avec elle si ce rendez-vous l'intéresse avant de confirmer","Vous confirmez tout de suite, le créneau est libre","Vous refusez, on ne prend pas de rendez-vous par téléphone","Vous lui dites de rappeler directement la directrice"], a:0,
+   e:"Un créneau libre n'est pas forcément <b>disponible</b> : la directrice décide de ses priorités. Sauf consigne claire, on <b>fait valider</b>.",
+   r:"Prendre un rendez-vous"},
+  {t:"qcm", q:"La réunion de vendredi 10 h est avancée à 9 h. Que faites-vous dans l'agenda ?",
+   o:["Vous modifiez l'invitation existante et prévenez les invités","Vous créez une deuxième invitation à 9 h","Vous supprimez l'événement et laissez les invités deviner","Vous ne changez rien et envoyez un SMS à chacun"], a:0,
+   e:"On <b>modifie</b> l'événement existant : tous les invités reçoivent la mise à jour, et il n'y a qu'une version de référence.",
+   r:"Modifier une invitation"},
+  {t:"qcm", q:"Votre responsable reçoit en même temps : une réunion urgente du comité de direction et un point de suivi mensuel avec un prestataire, sur le même créneau. Que proposez-vous ?",
+   o:["Garder le comité de direction et proposer une autre date au prestataire","Garder le point prestataire, car il était prévu en premier","Accepter les deux, il passera de l'un à l'autre","Refuser les deux pour éviter de choisir"], a:0,
+   e:"On classe selon l'<b>urgence</b> et l'<b>importance</b>. Le point mensuel peut être déplacé ; on prévient le prestataire et on propose un nouveau créneau. La décision finale reste au responsable.",
+   r:"Gérer les priorités dans l'agenda"},
+  {t:"spot", q:"Cette invitation contient une erreur. Cliquez sur la ligne à corriger.",
+   html:`<div class="conv">
+    <div class="spot" data-i="0"><b>Titre :</b> Point d'avancement – Projet nouveau site internet</div>
+    <div class="spot" data-i="1"><b>Date :</b> lundi 30 novembre 2026, de 10 h 00 à 11 h 00</div>
+    <div class="spot" data-i="2"><b>Lieu :</b> en visio (lien à venir)</div>
+    <div class="spot" data-i="3"><b>Invités :</b> équipe communication (obligatoires), prestataire web (facultatif)</div>
+    <div class="spot" data-i="4"><b>Description :</b> 1. Maquette – 2. Planning de mise en ligne – 3. Questions diverses</div>
+    <div class="spot" data-i="5"><b>Rappel :</b> 15 minutes avant</div></div>`,
+   a:2, e:"Une invitation en visio part <b>avec le lien</b> : on l'ajoute en créant l'événement (bouton Meet ou Teams). « Lien à venir » oblige à envoyer un deuxième message et risque d'être oublié.",
+   r:"Le contenu d'une invitation"},
+  {t:"qcm", q:"Votre responsable part en congés et vous demande de suivre son agenda. Un rendez-vous important est prévu à son retour, le lundi à 8 h 30. Que faites-vous ?",
+   o:["Vous confirmez le rendez-vous la semaine d'avant et lui préparez le dossier","Vous attendez son retour pour vous en occuper","Vous le décalez d'office pour lui laisser le temps de se réorganiser","Vous ne faites rien : le rendez-vous est déjà dans l'agenda"], a:0,
+   e:"Gérer un agenda, c'est aussi <b>anticiper</b> : confirmer les rendez-vous et préparer les documents utiles.",
+   r:"Gérer l'agenda d'un responsable"}
+ ]}
+];
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function prep(){MANCHES.forEach(m=>m.qs.forEach(q=>{if(q.t==='qcm'){const b=q.o0?q.o0[q.a0]:q.o[q.a];q.o0=q.o0||q.o;q.a0=q.a0??q.a;q.o=shuffle(q.o0);q.a=q.o.indexOf(b)}}))}
+prep();
+
+const total = MANCHES.reduce((s,m)=>s+m.qs.length,0);
+let st;
+const app = document.getElementById('app');
+const esc = s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const FMT={fill:"Texte à trous",qcm:"Choix unique",match:"Associer",order:"Remettre dans l'ordre",spot:"Repérer l'erreur"};
+
+function reset(nom){st={nom,m:0,i:0,done:0,score:MANCHES.map(()=>0),rate:[],err:[]}}
+
+function accueil(){
+ app.innerHTML=`<div class="card"><h2>Bienvenue !</h2>
+ <p>${total} questions en 4 manches : <b>mémoriser</b>, <b>comprendre</b>, <b>vocabulaire pro</b>, puis <b>appliquer</b> à des situations nouvelles. Plusieurs formats : texte à trous, choix unique, vrai ou faux justifié, associer, remettre dans l'ordre, repérer l'erreur. Une explication s'affiche après chaque réponse.</p>
+ <p><b>Votre prénom :</b></p><input type="text" id="nm" placeholder="Votre prénom" autocomplete="off">
+ <button class="btn" id="go">Commencer</button></div>`;
+ const go=()=>{const v=document.getElementById('nm').value.trim();if(!v){document.getElementById('nm').focus();return}reset(v);question()};
+ document.getElementById('go').onclick=go;
+ document.getElementById('nm').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+
+function mailHtml(m){return `<div class="mail"><div class="hd"><div><span>De :</span> ${m.de}</div><div><span>À :</span> ${m.a}</div><div><span>Date :</span> ${m.date}</div><div class="obj"><span>Objet :</span> ${m.obj}</div></div><div class="bd">${m.bd}</div></div>`}
+function entete(m,q){return `<span class="tag">${m.nom} · ${st.i+1}/${m.qs.length}</span><span class="fmt">${q.f||FMT[q.t]}</span>
+ <div class="prog"><div style="width:${st.done/total*100}%"></div></div>`}
+
+function question(){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ let body='';
+ if(q.t==='qcm'){
+  body=`${q.mail?mailHtml(q.mail):''}${q.aff?`<p class="aff">${q.aff}</p>`:''}<p class="q">${q.q}</p>
+  ${q.o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join('')}`;
+ } else if(q.t==='match'){
+  const L=shuffle(q.pairs.map((p,i)=>i)), R=shuffle(q.pairs.map((p,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Pour chaque élément, choisissez sa définition dans la liste, puis validez.</p>
+  ${L.map(i=>`<div class="mrow"><div class="mleft">${q.pairs[i][0]}</div><select class="msel" data-i="${i}"><option value="">— Choisir —</option>${R.map(j=>`<option value="${j}">${q.pairs[j][1]}</option>`).join('')}</select></div>`).join('')}
+  <button class="btn" id="mval" disabled>Valider</button>`;
+ } else if(q.t==='fill'){
+  const bank=shuffle(q.ans.concat(q.extra));
+  const txt=q.text.replace(/\{(\d)\}/g,(m,n)=>`<select class="fsel" data-n="${n}"><option value="">…</option>${bank.map(w=>`<option value="${esc(w)}">${w}</option>`).join('')}</select>`);
+  body=`<p class="q">${q.q}</p><p class="small">Choisissez le bon mot dans chaque liste, puis validez. Attention : certains mots sont en trop.</p>
+  <p class="ftxt">${txt}</p><button class="btn" id="fval" disabled>Valider</button>`;
+ } else if(q.t==='order'){
+  const S=shuffle(q.items.map((x,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Cliquez sur les étapes dans le bon ordre.</p>
+  <div>${S.map(i=>`<button class="it O" data-i="${i}">${q.items[i]}</button>`).join('')}</div>
+  <div class="ans"><ol id="ol"></ol></div>
+  <button class="btn sec" id="clr">Recommencer l'ordre</button><button class="btn" id="val" disabled>Valider</button>`;
+ } else if(q.t==='spot'){
+  body=`<p class="q">${q.q}</p>${q.html}`;
+ }
+ app.innerHTML=`<div class="card">${entete(m,q)}${body}<div id="fb"></div></div>`;
+ window.scrollTo(0,0);
+ if(q.t==='qcm') app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+   app.querySelectorAll('.opt').forEach(x=>{x.disabled=true;const n=+x.dataset.k;if(n===q.a)x.classList.add('good');else if(x===b)x.classList.add('bad')});
+   fin(+b.dataset.k===q.a,'',{votre:q.o[+b.dataset.k],bonne:q.o[q.a]})});
+ if(q.t==='match'){
+  const sels=[...app.querySelectorAll('.msel')], mv=document.getElementById('mval');
+  sels.forEach(x=>x.onchange=()=>{mv.disabled=sels.some(y=>y.value==='')});
+  mv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const lab=q.pairs[+x.dataset.i][0];if(x.value!==x.dataset.i){vv.push(lab+' → '+(q.pairs[+x.value]?q.pairs[+x.value][1]:''));bb.push(lab+' → '+q.pairs[+x.dataset.i][1])}});sels.forEach(x=>{x.disabled=true;const ok=x.value===x.dataset.i;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',`<div class="small" style="color:var(--ok);margin:0;grid-column:1/-1;text-align:right">Bonne réponse : ${q.pairs[+x.dataset.i][1]}</div>`)}});
+   mv.disabled=true;fin(err===0,err?`${err} erreur${err>1?'s':''} d'association.`:'',{votre:vv.join('<br>'),bonne:bb.join('<br>')})};
+ }
+ if(q.t==='fill'){
+  const sels=[...app.querySelectorAll('.fsel')], fv=document.getElementById('fval');
+  sels.forEach(x=>x.onchange=()=>{fv.disabled=sels.some(y=>y.value==='')});
+  fv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const g=q.ans[+x.dataset.n];if(x.value!==g){vv.push(x.value);bb.push(g)}});sels.forEach(x=>{x.disabled=true;const good=q.ans[+x.dataset.n];const ok=x.value===good;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',` <b style="color:var(--ok)">(${good})</b>`)}});
+   fv.disabled=true;fin(err===0,err?`${err} mot${err>1?'s':''} à revoir.`:'',{votre:vv.join(', '),bonne:bb.join(', ')})};
+ }
+ if(q.t==='order'){
+  let seq=[];const ol=document.getElementById('ol'),val=document.getElementById('val');
+  const maj=()=>{ol.innerHTML=seq.map(i=>`<li>${q.items[i]}</li>`).join('');val.disabled=seq.length!==q.items.length};
+  app.querySelectorAll('.O').forEach(b=>b.onclick=()=>{if(b.disabled)return;seq.push(+b.dataset.i);b.disabled=true;b.classList.add('sel');maj()});
+  document.getElementById('clr').onclick=()=>{seq=[];app.querySelectorAll('.O').forEach(b=>{b.disabled=false;b.classList.remove('sel')});maj()};
+  val.onclick=()=>{const good=seq.every((v,k)=>v===k);
+   ol.innerHTML=seq.map((v,k)=>`<li style="color:${v===k?'var(--ok)':'var(--ko)'}">${q.items[v]}</li>`).join('');
+   document.getElementById('clr').disabled=true;val.disabled=true;
+   fin(good,good?'':`Le bon ordre : ${q.items.join(' → ')}.`,{votre:seq.map(v=>q.items[v]).join(' → '),bonne:q.items.join(' → ')})};
+ }
+ if(q.t==='spot') app.querySelectorAll('.spot').forEach(el=>el.onclick=()=>{
+   if(app.querySelector('.spot.done'))return;
+   app.querySelectorAll('.spot').forEach(x=>{x.classList.add('done');if(+x.dataset.i===q.a)x.classList.add('good')});
+   const good=+el.dataset.i===q.a;if(!good)el.classList.add('bad');fin(good,'',{votre:el.textContent.trim(),bonne:app.querySelector(`.spot[data-i="${q.a}"]`).textContent.trim()})});
+}
+
+function fin(ok,extra,det){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ if(ok)st.score[st.m]++;else{st.rate.push(q.r);st.err.push({manche:m.nom,q:(q.aff?q.aff+' ':'')+q.q,votre:det?det.votre:'',bonne:det?det.bonne:''})}
+ st.done++;
+ const dernier = st.m===MANCHES.length-1 && st.i===m.qs.length-1;
+ document.getElementById('fb').innerHTML=`<div class="expl">${ok?'<b class="v">Bonne réponse !</b>':'<b class="x">Pas tout à fait.</b>'} ${extra?extra+' ':''}${q.e}</div>
+  <button class="btn" id="nx">${dernier?'Voir mes résultats':'Question suivante'}</button>`;
+ document.getElementById('nx').onclick=suivant;
+}
+
+function suivant(){st.i++;if(st.i>=MANCHES[st.m].qs.length){st.m++;st.i=0}if(st.m>=MANCHES.length)resultats();else question()}
+
+function niveau(p){return p>=0.8?['Acquis','acq']:p>=0.5?['En cours','enc']:['À revoir','rev']}
+
+function envoyer(tot){
+ if(!SHEET_URL)return;
+ const txt=h=>String(h).replace(/<br>/g,' | ').replace(/<[^>]+>/g,'');
+ const data={prenom:st.nom,groupe:GROUPE,quiz:QUIZ_NOM,score:tot,total:total,
+  manches:MANCHES.map((m,i)=>`${m.nom} : ${st.score[i]}/${m.qs.length}`).join(' ; '),
+  erreurs:st.err.map(x=>({manche:x.manche,question:txt(x.q),votre:txt(x.votre),bonne:txt(x.bonne)}))};
+ try{fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)})}catch(e){}
+}
+function resultats(){
+ const tot=st.score.reduce((a,b)=>a+b,0);
+ envoyer(tot);
+ const lignes=MANCHES.map((m,i)=>{const [l,c]=niveau(st.score[i]/m.qs.length);
+  return `<div class="res"><span>${m.nom} : <b>${st.score[i]}/${m.qs.length}</b></span><span class="lvl ${c}">${l}</span></div>`}).join('');
+ const rev=[...new Set(st.rate)];
+ app.innerHTML=`<div class="card"><h2>Résultats de ${esc(st.nom)}</h2><p class="score">${tot} / ${total}</p>${lignes}</div>
+  <div class="card"><h2>Ce que je dois revoir</h2>
+  ${rev.length?`<ul class="revoir">${rev.map(r=>`<li>${r}</li>`).join('')}</ul>`:'<p>Rien du tout : tout est acquis, félicitations !</p>'}
+</div>
+  ${st.err.length?`<div class="card"><h2>Le détail de mes erreurs</h2>${st.err.map((x,i)=>`<div class="errq"><div class="small">${x.manche}</div><p><b>${i+1}. ${x.q}</b></p><p class="ev">Ma réponse : ${x.votre}</p><p class="eb">Bonne réponse : ${x.bonne}</p></div>`).join('')}</div>`:''}
+  <div class="card"><button class="btn" id="re">Recommencer</button></div>`;
+ document.getElementById('re').onclick=()=>{reset(st.nom);prep();question()};
+ window.scrollTo(0,0);
+}
+accueil();
+</script>
+</body>
+</html>
