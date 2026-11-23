@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz des acquis – Session 21 – CADGA</title>
+<style>
+:root{--vert:#45967C;--bleu:#247091;--violet:#484596;--ok:#2e7d4f;--ko:#c0392b;--fond:#f4f6f8}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--fond);color:#222;line-height:1.45}
+.wrap{max-width:900px;margin:0 auto;padding:18px 14px 130px}
+.banner{background:var(--vert);color:#fff;border-radius:14px;padding:16px 20px;box-shadow:0 3px 10px rgba(0,0,0,.15);margin-bottom:16px}
+.banner h1{margin:0;font-size:1.45rem}
+.banner p{margin:4px 0 0;opacity:.95}
+.card{background:#fff;border-left:6px solid var(--bleu);border-radius:12px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+.tag{display:inline-block;background:var(--violet);color:#fff;border-radius:20px;padding:3px 12px;font-size:.85rem;margin:0 6px 8px 0}
+.fmt{display:inline-block;background:#e7f1f6;color:var(--bleu);border-radius:20px;padding:3px 12px;font-size:.85rem;font-weight:600}
+.prog{height:8px;background:#dde3e8;border-radius:6px;overflow:hidden;margin:6px 0 14px}
+.prog div{height:100%;background:var(--vert);transition:width .3s}
+h2{margin:.2em 0 .6em;font-size:1.15rem;color:var(--bleu)}
+.q{font-size:1.1rem;font-weight:600;margin:6px 0 12px}
+.aff{font-size:1.08rem;background:#f3f2fb;border-radius:10px;padding:12px 14px;margin:0 0 12px;font-style:italic}
+.opt,.it{display:block;width:100%;text-align:left;background:#fff;border:2px solid #cfd8de;border-radius:10px;padding:10px 14px;margin:7px 0;font-size:1rem;cursor:pointer;font-family:inherit;color:#222}
+.opt:hover:not([disabled]),.it:hover:not([disabled]){border-color:var(--bleu);background:#f0f7fa}
+.good{border-color:var(--ok)!important;background:#e6f4ec!important}
+.bad{border-color:var(--ko)!important;background:#fbeaea!important}
+.sel{border-color:var(--violet)!important;background:#efeefa!important}
+button[disabled]{cursor:default}
+.grid2{display:grid;grid-template-columns:1fr 1.4fr;gap:14px}
+.ans{min-height:48px;border:2px dashed #b8c4cc;border-radius:10px;padding:6px 10px;margin:8px 0}
+.ans ol{margin:4px 0;padding-left:22px}
+.small{font-size:.9rem;color:#5b6a72}
+.expl{margin-top:12px;padding:12px 14px;border-radius:10px;background:#f3f2fb;border-left:5px solid var(--violet)}
+.expl b.v{color:var(--ok)} .expl b.x{color:var(--ko)}
+.btn{background:var(--bleu);color:#fff;border:0;border-radius:10px;padding:10px 20px;font-size:1rem;cursor:pointer;margin:10px 8px 0 0;font-family:inherit}
+.btn.sec{background:#fff;color:var(--bleu);border:2px solid var(--bleu)}
+input[type=text]{width:100%;padding:11px 12px;font-size:1rem;border:2px solid #cfd8de;border-radius:10px;font-family:inherit}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.doc{border:1px solid #9aa9b3;background:#fff;padding:10px;font-size:.88rem}
+.doc .ttl{font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+.doc table{border-collapse:collapse;width:100%;margin-top:6px}
+.doc th{background:#e8edf0;border:1px solid #9aa9b3;padding:4px 6px;text-align:left}
+.doc td{border:1px solid #9aa9b3;padding:4px 6px}
+.spot{cursor:pointer}
+.spot:hover{background:#fff6d6}
+tr.spot.good td,tr.spot.bad td{background:inherit}
+tr.spot.good{background:#e6f4ec} tr.spot.bad{background:#fbeaea}
+.conv{border:1px solid #9aa9b3;background:#fff;padding:6px 10px;font-size:.95rem}
+.conv div.spot{padding:6px 8px;border-radius:6px;margin:2px 0;border:2px solid transparent}
+.mail{border:1px solid #c9d3d9;border-radius:10px;overflow:hidden;margin-bottom:10px}
+.mail .hd{background:#eef2f4;padding:8px 14px;font-size:.92rem}.mail .hd span{color:#5b6a72;display:inline-block;min-width:58px}
+.mail .obj{font-weight:700}.mail .bd{padding:10px 14px;white-space:pre-line}
+.mrow{display:grid;grid-template-columns:1fr 1.6fr;gap:10px;align-items:center;margin:8px 0}
+.mleft{font-weight:600;background:#e7f1f6;border-radius:8px;padding:9px 12px}
+.msel{width:100%;padding:9px 10px;font-size:.98rem;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff}
+@media(max-width:640px){.mrow{grid-template-columns:1fr}}
+.ftxt{font-size:1.08rem;line-height:2.3}
+.fsel{font-size:1rem;padding:4px 6px;border:2px solid #cfd8de;border-radius:8px;font-family:inherit;background:#fff;max-width:100%}
+.errq{border-bottom:1px solid #e3e8ec;padding:8px 0}.errq p{margin:4px 0}.ev{color:var(--ko)}.eb{color:var(--ok);font-weight:600}
+.res{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e3e8ec}
+.lvl{border-radius:20px;padding:3px 12px;color:#fff;font-size:.88rem;white-space:nowrap}
+.acq{background:var(--ok)} .enc{background:#d68910} .rev{background:var(--ko)}
+ul.revoir li{margin:6px 0}
+.score{font-size:2rem;font-weight:700;color:var(--vert)}
+footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:3px solid var(--vert);text-align:center;font-size:.78rem;color:#555;padding:6px}
+@media(max-width:640px){.docs,.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">
+    <h1>Quiz des acquis – Session 21</h1>
+    <p>Écrits professionnels · Vérifier un dossier · Relancer · Agenda · Rendre compte</p>
+  </div>
+  <div id="app"></div>
+</div>
+<footer>Support de formation - Chrystelle THEOPHILE - MAJ 11-2026 - Quiz des acquis S21 CADGA</footer>
+
+<script>
+// ===== Enregistrement des résultats (Google Sheets) =====
+// Collez entre les guillemets l'adresse de l'application Web (elle finit par /exec).
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbycVcC5I860JYdOz400XLzxiHpFklxJ0aKNhCBSfIDGzlqYlAAvMF00idbCBfU1vc_r/exec";
+const QUIZ_NOM = "Quiz des acquis S21";
+const GROUPE = "CADGA";
+// =========================================================
+const VF="Choisissez la bonne réponse et sa justification.";
+const MANCHES = [
+ {nom:"Manche 1 – Mémoriser", qs:[
+  {t:"match", q:"Associez chaque destinataire au titre de civilité qui convient dans une lettre.",
+   pairs:[["Une notaire","Maître"],["Le maire d'une commune","Monsieur le Maire"],["Une cliente dont vous connaissez le nom","Madame"],["Un service dont vous ne connaissez pas l'interlocuteur","Madame, Monsieur"]],
+   e:"Les avocats, notaires et commissaires de justice sont appelés <b>« Maître »</b>, qu'il s'agisse d'un homme ou d'une femme. On reprend la <b>fonction</b> pour un élu, et on écrit <b>« Madame, Monsieur »</b> quand on ne connaît pas le destinataire.",
+   r:"Les titres de civilité"},
+  {t:"match", q:"Associez chaque écrit professionnel à ce qui le caractérise.",
+   pairs:[["La note de service","Une consigne interne, au ton impersonnel, sans formule de politesse"],["La lettre","Un destinataire externe, une formule d'appel et une formule de politesse"],["Le courriel","Un objet précis, un message court, une signature complète"],["Le compte rendu","Le résumé neutre de ce qui s'est dit et décidé en réunion"]],
+   e:"Chaque écrit a ses <b>codes</b> : on choisit le document selon le destinataire (interne ou externe) et le but (informer, consigner, demander).",
+   r:"Les écrits professionnels"},
+  {t:"qcm", q:"Dans une lettre, que met-on après « V/Réf. » ?",
+   o:["La référence donnée par votre correspondant dans son courrier","Votre propre référence interne","Le numéro SIRET de votre entreprise","La date d'envoi de la lettre"], a:0,
+   e:"<b>V/Réf.</b> = « votre référence » : celle du correspondant. <b>N/Réf.</b> = « notre référence » : la vôtre. Les reprendre permet de retrouver le dossier tout de suite.",
+   r:"Les références d'une lettre"},
+  {t:"order", q:"Remettez dans l'ordre le plan d'une réponse à une réclamation.",
+   items:["Accuser réception de la réclamation","Rappeler les faits","Présenter la solution retenue","Indiquer la suite (délai, contact)","Formule de politesse"],
+   e:"On montre d'abord qu'on a <b>entendu</b> le client, on rappelle les <b>faits</b>, puis on apporte la <b>solution</b> et la <b>suite</b> concrète.",
+   r:"Répondre à une réclamation"}
+ ]},
+ {nom:"Manche 2 – Comprendre", qs:[
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Pour relancer un fournisseur, l'objet « Relance » suffit : il comprendra. »", q:VF,
+   o:["Faux : l'objet dit de quoi il s'agit (ex. « Commande n° 5521 – Livraison en attente »)","Vrai : un objet doit être le plus court possible","Vrai : le détail se trouve dans le corps du mail","Faux : il faut écrire « URGENT » en majuscules"], a:0,
+   e:"Un bon objet permet de comprendre le message <b>sans l'ouvrir</b> et de le <b>retrouver</b> plus tard : on précise le dossier et ce qu'on attend.",
+   r:"L'objet d'un message"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Une note de service se termine par « Veuillez agréer, Mesdames, Messieurs, l'expression de nos salutations distinguées. » »", q:VF,
+   o:["Faux : pas de formule de politesse, seulement la signature de l'émetteur","Vrai : c'est obligatoire dans tout écrit professionnel","Vrai : si la note s'adresse à toute l'entreprise","Faux : on termine par « Bisous à tous »"], a:0,
+   e:"La note de service est un écrit <b>interne</b> et <b>impersonnel</b> : ni titre de civilité, ni formule de politesse.",
+   r:"La note de service"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Le mot de liaison « en effet » sert à annoncer une conséquence. »", q:VF,
+   o:["Faux : « en effet » introduit une explication ; « par conséquent » annonce une conséquence","Vrai : « en effet » et « donc » veulent dire la même chose","Vrai : on l'utilise toujours en fin de lettre","Faux : « en effet » sert à opposer deux idées"], a:0,
+   e:"<b>En effet</b> = j'explique ou je justifie. <b>Donc, par conséquent</b> = j'annonce une conséquence. <b>Cependant</b> = j'oppose.",
+   r:"Les mots de liaison"},
+  {t:"qcm", f:"Vrai ou faux ?", aff:"« Un dossier où toutes les pièces demandées sont arrivées est forcément conforme. »", q:VF,
+   o:["Faux : il est complet, mais chaque pièce doit encore être vérifiée (signée, à jour, remplie)","Vrai : complet et conforme veulent dire la même chose","Vrai : si le client l'a envoyé lui-même","Faux : un dossier n'est jamais conforme"], a:0,
+   e:"<b>Complet</b> = toutes les pièces sont là. <b>Conforme</b> = chaque pièce est <b>valable</b>. On vérifie les deux avant de transmettre un dossier.",
+   r:"Vérifier un dossier"}
+ ]},
+ {nom:"Manche 3 – Vocabulaire pro", qs:[
+  {t:"fill", q:"Complétez ce texte sur le traitement d'un dossier.",
+   text:"Toutes les pièces sont là : le dossier est {0}. Chaque pièce est signée et à jour : il est aussi {1}. S'il manque un document, j'envoie une {2} avec une date limite.",
+   ans:["complet","conforme","relance"], extra:["archivé","facture"],
+   e:"On vérifie qu'il est <b>complet</b>, puis <b>conforme</b>. Ce qui manque fait l'objet d'une <b>relance</b> précise.",
+   r:"Vérifier un dossier"},
+  {t:"fill", q:"Complétez ce texte sur les délais.",
+   text:"La comptabilité valide les dossiers sous 3 jours {0}, c'est-à-dire les jours travaillés. Un extrait Kbis doit dater de moins de 3 {1}. Une fois le dossier vérifié, je {2} à mon responsable.",
+   ans:["ouvrés","mois","rends compte"], extra:["fériés","semaines","cache tout"],
+   e:"Jours <b>ouvrés</b> = jours travaillés dans l'entreprise (souvent du lundi au vendredi). Le <b>Kbis</b> se demande de moins de 3 mois. Et on <b>rend compte</b> sans attendre qu'on nous le demande.",
+   r:"Délais et procédures"},
+  {t:"fill", q:"Complétez ce texte sur l'agenda.",
+   text:"Un rendez-vous est reporté : je {0} l'événement au lieu d'en créer un autre. Pour une demande « le plus tôt possible », je propose le premier créneau {1}. Avant un départ en rendez-vous, j'ajoute un {2} 30 minutes avant.",
+   ans:["déplace","libre","rappel"], extra:["supprime","privé","compte rendu"],
+   e:"On <b>déplace</b> l'événement existant (les invités reçoivent la mise à jour), on cherche le premier créneau <b>libre</b>, et le <b>rappel</b> évite les oublis.",
+   r:"Tenir à jour un agenda"}
+ ]},
+ {nom:"Manche 4 – Appliquer", qs:[
+  {t:"qcm", q:"Agence immobilière : un candidat locataire envoie sa pièce d'identité, ses 3 derniers bulletins de salaire et son avis d'imposition 2023. L'agence demande le dernier avis (2025). Que faites-vous ?",
+   o:["Vous lui indiquez que l'avis n'est pas le bon et demandez le dernier, avec une date limite","Vous transmettez le dossier tel quel, il est complet","Vous refusez son dossier sans explication","Vous corrigez vous-même l'année sur le document"], a:0,
+   e:"Toutes les pièces sont là, mais l'avis d'imposition n'est <b>pas conforme</b>. On <b>relance</b> en disant précisément ce qui ne va pas, et pour quand.",
+   r:"Vérifier un dossier"},
+  {t:"qcm", q:"Cabinet comptable, 9 h. Vous avez : une pièce à envoyer à un client qui doit faire sa déclaration demain, une demande de devis d'un prospect sans date, et le classement des factures du mois dernier. Par quoi commencez-vous ?",
+   o:["La pièce pour le client : son échéance est demain","Le devis : un prospect, c'est un futur client","Le classement : c'est le plus ancien","Ce qui vous prend le moins de temps, peu importe l'ordre"], a:0,
+   e:"On classe selon l'<b>urgence</b> (l'échéance) et l'<b>importance</b> (les conséquences). Le devis se fait ensuite dans la journée, le classement en dernier.",
+   r:"Repérer les urgences et les priorités"},
+  {t:"qcm", q:"Une livraison est prévue le lundi 14. Le service validation a besoin de 3 jours ouvrés (du lundi au vendredi) et doit avoir fini le vendredi 11. Quel est le dernier jour pour recevoir le dossier complet ?",
+   o:["Le mardi 8","Le mercredi 9","Le jeudi 10","Le vendredi 11"], a:0,
+   e:"On compte à rebours <b>3 jours ouvrés</b> : mercredi 9, jeudi 10, vendredi 11. Le dossier doit donc être arrivé le <b>mardi 8</b> au plus tard.",
+   r:"Calculer un délai"},
+  {t:"spot", q:"Ce mail de relance a un défaut qui risque de le rendre inutile. Cliquez sur la ligne à corriger.",
+   html:`<div class="conv">
+    <div class="spot" data-i="0"><b>Objet :</b> Dossier d'inscription n° 1452 – Pièces manquantes</div>
+    <div class="spot" data-i="1">Bonjour Madame LOPEZ,</div>
+    <div class="spot" data-i="2">Après vérification, votre dossier d'inscription est incomplet : il manque votre attestation d'assurance et une photo d'identité.</div>
+    <div class="spot" data-i="3">Merci de nous les envoyer quand vous le pourrez.</div>
+    <div class="spot" data-i="4">Je reste à votre disposition au 01 23 45 67 89.</div>
+    <div class="spot" data-i="5">Cordialement, Julie MARTIN, secrétariat de l'école de musique</div></div>`,
+   a:3, e:"Sans <b>date limite</b> (et sans la raison), la relance ne fait pas avancer le dossier : « merci de nous les envoyer <b>avant le vendredi 4 décembre</b>, pour valider votre inscription ».",
+   r:"Relancer"},
+  {t:"qcm", q:"Pendant l'absence de votre responsable, vous avez traité 5 demandes. Comment lui rendez-vous compte ?",
+   o:["Un mail court et classé : ce qui est fait, ce qui est en attente, ce qu'il doit décider","Vous lui racontez tout en détail à son retour","Vous ne dites rien : tout est traité","Vous lui transférez tous les mails reçus, sans commentaire"], a:0,
+   e:"<b>Rendre compte</b>, c'est permettre au responsable de savoir en un coup d'œil où en sont les choses et ce qu'il doit faire, sans tout relire.",
+   r:"Rendre compte à sa hiérarchie"}
+ ]}
+];
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function prep(){MANCHES.forEach(m=>m.qs.forEach(q=>{if(q.t==='qcm'){const b=q.o0?q.o0[q.a0]:q.o[q.a];q.o0=q.o0||q.o;q.a0=q.a0??q.a;q.o=shuffle(q.o0);q.a=q.o.indexOf(b)}}))}
+prep();
+
+const total = MANCHES.reduce((s,m)=>s+m.qs.length,0);
+let st;
+const app = document.getElementById('app');
+const esc = s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const FMT={fill:"Texte à trous",qcm:"Choix unique",match:"Associer",order:"Remettre dans l'ordre",spot:"Repérer l'erreur"};
+
+function reset(nom){st={nom,m:0,i:0,done:0,score:MANCHES.map(()=>0),rate:[],err:[]}}
+
+function accueil(){
+ app.innerHTML=`<div class="card"><h2>Bienvenue !</h2>
+ <p>${total} questions en 4 manches : <b>mémoriser</b>, <b>comprendre</b>, <b>vocabulaire pro</b>, puis <b>appliquer</b> à des situations nouvelles. Plusieurs formats : texte à trous, choix unique, vrai ou faux justifié, associer, remettre dans l'ordre, repérer l'erreur. Une explication s'affiche après chaque réponse.</p>
+ <p><b>Votre prénom :</b></p><input type="text" id="nm" placeholder="Votre prénom" autocomplete="off">
+ <button class="btn" id="go">Commencer</button></div>`;
+ const go=()=>{const v=document.getElementById('nm').value.trim();if(!v){document.getElementById('nm').focus();return}reset(v);question()};
+ document.getElementById('go').onclick=go;
+ document.getElementById('nm').onkeydown=e=>{if(e.key==='Enter')go()};
+}
+
+function mailHtml(m){return `<div class="mail"><div class="hd"><div><span>De :</span> ${m.de}</div><div><span>À :</span> ${m.a}</div><div><span>Date :</span> ${m.date}</div><div class="obj"><span>Objet :</span> ${m.obj}</div></div><div class="bd">${m.bd}</div></div>`}
+function entete(m,q){return `<span class="tag">${m.nom} · ${st.i+1}/${m.qs.length}</span><span class="fmt">${q.f||FMT[q.t]}</span>
+ <div class="prog"><div style="width:${st.done/total*100}%"></div></div>`}
+
+function question(){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ let body='';
+ if(q.t==='qcm'){
+  body=`${q.mail?mailHtml(q.mail):''}${q.aff?`<p class="aff">${q.aff}</p>`:''}<p class="q">${q.q}</p>
+  ${q.o.map((t,k)=>`<button class="opt" data-k="${k}">${t}</button>`).join('')}`;
+ } else if(q.t==='match'){
+  const L=shuffle(q.pairs.map((p,i)=>i)), R=shuffle(q.pairs.map((p,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Pour chaque élément, choisissez sa définition dans la liste, puis validez.</p>
+  ${L.map(i=>`<div class="mrow"><div class="mleft">${q.pairs[i][0]}</div><select class="msel" data-i="${i}"><option value="">— Choisir —</option>${R.map(j=>`<option value="${j}">${q.pairs[j][1]}</option>`).join('')}</select></div>`).join('')}
+  <button class="btn" id="mval" disabled>Valider</button>`;
+ } else if(q.t==='fill'){
+  const bank=shuffle(q.ans.concat(q.extra));
+  const txt=q.text.replace(/\{(\d)\}/g,(m,n)=>`<select class="fsel" data-n="${n}"><option value="">…</option>${bank.map(w=>`<option value="${esc(w)}">${w}</option>`).join('')}</select>`);
+  body=`<p class="q">${q.q}</p><p class="small">Choisissez le bon mot dans chaque liste, puis validez. Attention : certains mots sont en trop.</p>
+  <p class="ftxt">${txt}</p><button class="btn" id="fval" disabled>Valider</button>`;
+ } else if(q.t==='order'){
+  const S=shuffle(q.items.map((x,i)=>i));
+  body=`<p class="q">${q.q}</p><p class="small">Cliquez sur les étapes dans le bon ordre.</p>
+  <div>${S.map(i=>`<button class="it O" data-i="${i}">${q.items[i]}</button>`).join('')}</div>
+  <div class="ans"><ol id="ol"></ol></div>
+  <button class="btn sec" id="clr">Recommencer l'ordre</button><button class="btn" id="val" disabled>Valider</button>`;
+ } else if(q.t==='spot'){
+  body=`<p class="q">${q.q}</p>${q.html}`;
+ }
+ app.innerHTML=`<div class="card">${entete(m,q)}${body}<div id="fb"></div></div>`;
+ window.scrollTo(0,0);
+ if(q.t==='qcm') app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+   app.querySelectorAll('.opt').forEach(x=>{x.disabled=true;const n=+x.dataset.k;if(n===q.a)x.classList.add('good');else if(x===b)x.classList.add('bad')});
+   fin(+b.dataset.k===q.a,'',{votre:q.o[+b.dataset.k],bonne:q.o[q.a]})});
+ if(q.t==='match'){
+  const sels=[...app.querySelectorAll('.msel')], mv=document.getElementById('mval');
+  sels.forEach(x=>x.onchange=()=>{mv.disabled=sels.some(y=>y.value==='')});
+  mv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const lab=q.pairs[+x.dataset.i][0];if(x.value!==x.dataset.i){vv.push(lab+' → '+(q.pairs[+x.value]?q.pairs[+x.value][1]:''));bb.push(lab+' → '+q.pairs[+x.dataset.i][1])}});sels.forEach(x=>{x.disabled=true;const ok=x.value===x.dataset.i;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',`<div class="small" style="color:var(--ok);margin:0;grid-column:1/-1;text-align:right">Bonne réponse : ${q.pairs[+x.dataset.i][1]}</div>`)}});
+   mv.disabled=true;fin(err===0,err?`${err} erreur${err>1?'s':''} d'association.`:'',{votre:vv.join('<br>'),bonne:bb.join('<br>')})};
+ }
+ if(q.t==='fill'){
+  const sels=[...app.querySelectorAll('.fsel')], fv=document.getElementById('fval');
+  sels.forEach(x=>x.onchange=()=>{fv.disabled=sels.some(y=>y.value==='')});
+  fv.onclick=()=>{let err=0;const vv=[],bb=[];sels.forEach(x=>{const g=q.ans[+x.dataset.n];if(x.value!==g){vv.push(x.value);bb.push(g)}});sels.forEach(x=>{x.disabled=true;const good=q.ans[+x.dataset.n];const ok=x.value===good;x.classList.add(ok?'good':'bad');if(!ok){err++;x.insertAdjacentHTML('afterend',` <b style="color:var(--ok)">(${good})</b>`)}});
+   fv.disabled=true;fin(err===0,err?`${err} mot${err>1?'s':''} à revoir.`:'',{votre:vv.join(', '),bonne:bb.join(', ')})};
+ }
+ if(q.t==='order'){
+  let seq=[];const ol=document.getElementById('ol'),val=document.getElementById('val');
+  const maj=()=>{ol.innerHTML=seq.map(i=>`<li>${q.items[i]}</li>`).join('');val.disabled=seq.length!==q.items.length};
+  app.querySelectorAll('.O').forEach(b=>b.onclick=()=>{if(b.disabled)return;seq.push(+b.dataset.i);b.disabled=true;b.classList.add('sel');maj()});
+  document.getElementById('clr').onclick=()=>{seq=[];app.querySelectorAll('.O').forEach(b=>{b.disabled=false;b.classList.remove('sel')});maj()};
+  val.onclick=()=>{const good=seq.every((v,k)=>v===k);
+   ol.innerHTML=seq.map((v,k)=>`<li style="color:${v===k?'var(--ok)':'var(--ko)'}">${q.items[v]}</li>`).join('');
+   document.getElementById('clr').disabled=true;val.disabled=true;
+   fin(good,good?'':`Le bon ordre : ${q.items.join(' → ')}.`,{votre:seq.map(v=>q.items[v]).join(' → '),bonne:q.items.join(' → ')})};
+ }
+ if(q.t==='spot') app.querySelectorAll('.spot').forEach(el=>el.onclick=()=>{
+   if(app.querySelector('.spot.done'))return;
+   app.querySelectorAll('.spot').forEach(x=>{x.classList.add('done');if(+x.dataset.i===q.a)x.classList.add('good')});
+   const good=+el.dataset.i===q.a;if(!good)el.classList.add('bad');fin(good,'',{votre:el.textContent.trim(),bonne:app.querySelector(`.spot[data-i="${q.a}"]`).textContent.trim()})});
+}
+
+function fin(ok,extra,det){
+ const m=MANCHES[st.m], q=m.qs[st.i];
+ if(ok)st.score[st.m]++;else{st.rate.push(q.r);st.err.push({manche:m.nom,q:(q.aff?q.aff+' ':'')+q.q,votre:det?det.votre:'',bonne:det?det.bonne:''})}
+ st.done++;
+ const dernier = st.m===MANCHES.length-1 && st.i===m.qs.length-1;
+ document.getElementById('fb').innerHTML=`<div class="expl">${ok?'<b class="v">Bonne réponse !</b>':'<b class="x">Pas tout à fait.</b>'} ${extra?extra+' ':''}${q.e}</div>
+  <button class="btn" id="nx">${dernier?'Voir mes résultats':'Question suivante'}</button>`;
+ document.getElementById('nx').onclick=suivant;
+}
+
+function suivant(){st.i++;if(st.i>=MANCHES[st.m].qs.length){st.m++;st.i=0}if(st.m>=MANCHES.length)resultats();else question()}
+
+function niveau(p){return p>=0.8?['Acquis','acq']:p>=0.5?['En cours','enc']:['À revoir','rev']}
+
+function envoyer(tot){
+ if(!SHEET_URL)return;
+ const txt=h=>String(h).replace(/<br>/g,' | ').replace(/<[^>]+>/g,'');
+ const data={prenom:st.nom,groupe:GROUPE,quiz:QUIZ_NOM,score:tot,total:total,
+  manches:MANCHES.map((m,i)=>`${m.nom} : ${st.score[i]}/${m.qs.length}`).join(' ; '),
+  erreurs:st.err.map(x=>({manche:x.manche,question:txt(x.q),votre:txt(x.votre),bonne:txt(x.bonne)}))};
+ try{fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(data)})}catch(e){}
+}
+function resultats(){
+ const tot=st.score.reduce((a,b)=>a+b,0);
+ envoyer(tot);
+ const lignes=MANCHES.map((m,i)=>{const [l,c]=niveau(st.score[i]/m.qs.length);
+  return `<div class="res"><span>${m.nom} : <b>${st.score[i]}/${m.qs.length}</b></span><span class="lvl ${c}">${l}</span></div>`}).join('');
+ const rev=[...new Set(st.rate)];
+ app.innerHTML=`<div class="card"><h2>Résultats de ${esc(st.nom)}</h2><p class="score">${tot} / ${total}</p>${lignes}</div>
+  <div class="card"><h2>Ce que je dois revoir</h2>
+  ${rev.length?`<ul class="revoir">${rev.map(r=>`<li>${r}</li>`).join('')}</ul>`:'<p>Rien du tout : tout est acquis, félicitations !</p>'}
+</div>
+  ${st.err.length?`<div class="card"><h2>Le détail de mes erreurs</h2>${st.err.map((x,i)=>`<div class="errq"><div class="small">${x.manche}</div><p><b>${i+1}. ${x.q}</b></p><p class="ev">Ma réponse : ${x.votre}</p><p class="eb">Bonne réponse : ${x.bonne}</p></div>`).join('')}</div>`:''}
+  <div class="card"><button class="btn" id="re">Recommencer</button></div>`;
+ document.getElementById('re').onclick=()=>{reset(st.nom);prep();question()};
+ window.scrollTo(0,0);
+}
+accueil();
+</script>
+</body>
+</html>
